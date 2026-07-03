@@ -168,7 +168,7 @@ plt.title("Distribution Comparison")
 plt.ylabel("Values")
 plt.show()
 
-# The exponential distribution is more skewed in comparison, with the median descriptive statistic  likely providing a more appropriate measure of central tendency because it's less affected by extreme values and outliers. For the normal distribution, both mean and median might be okay (as the distribution is nearly symmetric), but I might go with mean for its mathematical properties.
+# The exponential distribution is more skewed in comparison, with the median descriptive statistic likely providing a more appropriate measure of central tendency because it's less affected by extreme values and outliers. For the normal distribution, both mean and median might be okay (as the distribution is nearly symmetric), but I might go with mean for its mathematical properties.
 
 # Descriptive Stats Question 5
 data1 = [10, 12, 12, 16, 18]
