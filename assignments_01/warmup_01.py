@@ -6,11 +6,12 @@ from scipy.stats import pearsonr
 import seaborn as sns
 import warnings
 
+# # Part 1: Warmup Exercises
 warnings.simplefilter(action="ignore", category=FutureWarning)
 
 
 # ---------------------------------------------------------------------------- #
-# Part 1: Warmup Exercises
+# --- Pandas Review ---
 
 # Pandas Question 1
 data = {
@@ -52,6 +53,7 @@ print("Top Three Grades:")
 print(sorted_df.head(3), "\n")
 
 # ---------------------------------------------------------------------------- #
+# --- NumPy Review ---
 
 # NumPy Question 1
 arr_q1 = np.array([10, 20, 30, 40, 50])
@@ -90,6 +92,7 @@ print(f"Random Values Mean: {arr_q6.mean()}")
 print(f"Random Values Standard Deviation: {arr_q6.std()}\n")
 
 # ---------------------------------------------------------------------------- #
+# --- Matplotlib Review ---
 
 # Matplotlib Question 1
 x = [0, 1, 2, 3, 4, 5]
@@ -134,6 +137,7 @@ plt.tight_layout()
 plt.show()
 
 # ---------------------------------------------------------------------------- #
+# --- Descriptive Statistics Review ---
 
 # Descriptive Stats Question 1
 data = [12, 15, 14, 10, 18, 22, 13, 16, 14, 15]
@@ -183,6 +187,7 @@ print(f"Data2 Mode: {stats.mode(data2).mode[0]}")
 # I think the median and mean are so different for data2 because of the outlier (150), which skews the distribution's mean upwards while the median remains relatively unchanged.
 
 # ---------------------------------------------------------------------------- #
+# --- Hypothesis Testing Review ---
 
 # Hypothesis Question 1 > independent samples t-test
 group_a = [72, 68, 75, 70, 69, 73, 71, 74]
@@ -226,6 +231,7 @@ else:
     )
 
 # ---------------------------------------------------------------------------- #
+# --- Correlation Review ---
 
 # Correlation Question 1
 x = [1, 2, 3, 4, 5]
@@ -267,6 +273,7 @@ plt.title("Correlation Heatmap")
 plt.show()
 
 # ---------------------------------------------------------------------------- #
+# Pipelines
 
 # Pipeline Question 1
 arr = np.array(
