@@ -64,9 +64,9 @@ def descriptive_stats(df):
     logger.info("------ Task 2: Descriptive Statistics for happiness_score")
 
     logger.info("-- OVERALL STATS")
-    logger.info(f"mean: {df["happiness_score"].mean():.4f}")
-    logger.info(f"median: {df["happiness_score"].median():.4f}")
-    logger.info(f"std: {df["happiness_score"].std():.4f}")
+    logger.info(f"mean: {df['happiness_score'].mean():.4f}")
+    logger.info(f"median: {df['happiness_score'].median():.4f}")
+    logger.info(f"std: {df['happiness_score'].std():.4f}")
 
     logger.info("-- MEAN by YEAR")
     for year, mean in df.groupby("year")["happiness_score"].mean().items():
