@@ -63,7 +63,7 @@ def descriptive_stats(df):
     logger = get_run_logger()
     logger.info("------ Task 2: Descriptive Statistics for happiness_score")
 
-    logger.info(f"-- OVERALL STATS")
+    logger.info("-- OVERALL STATS")
     logger.info(f"mean: {df["happiness_score"].mean():.4f}")
     logger.info(f"median: {df["happiness_score"].median():.4f}")
     logger.info(f"std: {df["happiness_score"].std():.4f}")
@@ -163,7 +163,7 @@ def hypothesis_testing(df):
     logger.info(f"p-value: {p_val1:.4f}")
 
     if p_val1 < 0.05:
-        ttest1_conclusion = f"There IS a statistically significant difference (p < 0.05). Global happiness was notably {"lower" if b.mean() < a.mean() else "higher"} in 2020 than in 2019, suggesting the pandemic was associated with a measurable change."
+        ttest1_conclusion = f"There IS a statistically significant difference (p < 0.05). Global happiness was notably {'lower' if b.mean() < a.mean() else 'higher'} in 2020 than in 2019, suggesting the pandemic was associated with a measurable change."
     else:
         ttest1_conclusion = "NO statistically significant difference (p ≥ 0.05). We cannot conclude that the pandemic affected global happiness scores."
     logger.info(f"Conclusion: {ttest1_conclusion}")
@@ -179,7 +179,7 @@ def hypothesis_testing(df):
     logger.info(f"p-value: {p_val2:.4f}")
     if p_val2 < 0.05:
         logger.info(
-            f"Conclusion: there IS a statistically significant difference (p < 0.05). Western Europe reports notably {"lower" if c.mean() < d.mean() else "higher"} happiness scores than South Asia across all years."
+            f"Conclusion: there IS a statistically significant difference (p < 0.05). Western Europe reports notably {'lower' if c.mean() < d.mean() else 'higher'} happiness scores than South Asia across all years."
         )
     else:
         logger.info(
@@ -229,8 +229,8 @@ def summary_report(df, hypothesis, cor_results):
     logger = get_run_logger()
     logger.info("------ Task 6: Summary Report")
 
-    logger.info(f"Total number of countries: {df["regional_indicator"].nunique()}")
-    logger.info(f"Total number of years: {df["year"].nunique()}")
+    logger.info(f"Total number of countries: {df['regional_indicator'].nunique()}")
+    logger.info(f"Total number of years: {df['year'].nunique()}")
 
     logger.info("-- Top 3 regions by mean happiness score:")
     for region, score in (
@@ -252,7 +252,7 @@ def summary_report(df, hypothesis, cor_results):
 
     logger.info(f"Conclusion for pre/post-2020 t-test: {hypothesis}")
     logger.info(
-        f"Variable most strongly correlated with happiness score (after Bonferroni correction): {cor_results["strongest_var"]}"
+        f"Variable most strongly correlated with happiness score (after Bonferroni correction): {cor_results['strongest_var']}"
     )
 
 

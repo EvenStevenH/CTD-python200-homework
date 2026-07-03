@@ -56,9 +56,9 @@ print(sorted_df.head(3), "\n")
 # NumPy Question 1
 arr_q1 = np.array([10, 20, 30, 40, 50])
 print("2D array:\n", arr_q1)
-print(f"First 3 Rows: {arr_q1.shape}")
-print(f"Shape: {arr_q1.dtype}")
-print(f"Data Types: {arr_q1.ndim}\n")
+print(f"Shape: {arr_q1.shape}")
+print(f"Data Types: {arr_q1.dtype}")
+print(f"Number of array dimensions: {arr_q1.ndim}\n")
 
 # NumPy Question 2
 arr_q2 = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
@@ -103,7 +103,7 @@ plt.show()
 # Matplotlib Question 2
 subjects = ["Math", "Science", "English", "History"]
 scores = [88, 92, 75, 83]
-plt.plot(subjects, scores)
+plt.bar(subjects, scores)
 plt.title("Subject Scores")
 plt.xlabel("Subject")
 plt.ylabel("Scores")
