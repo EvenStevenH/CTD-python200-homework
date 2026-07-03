@@ -229,7 +229,7 @@ def summary_report(df, hypothesis, cor_results):
     logger = get_run_logger()
     logger.info("------ Task 6: Summary Report")
 
-    logger.info(f"Total number of countries: {df['regional_indicator'].nunique()}")
+    logger.info(f"Total number of countries: {df['country'].nunique()}")
     logger.info(f"Total number of years: {df['year'].nunique()}")
 
     logger.info("-- Top 3 regions by mean happiness score:")

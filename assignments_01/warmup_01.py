@@ -55,7 +55,7 @@ print(sorted_df.head(3), "\n")
 
 # NumPy Question 1
 arr_q1 = np.array([10, 20, 30, 40, 50])
-print("2D array:\n", arr_q1)
+print("1D array:\n", arr_q1)
 print(f"Shape: {arr_q1.shape}")
 print(f"Data Types: {arr_q1.dtype}")
 print(f"Number of array dimensions: {arr_q1.ndim}\n")
@@ -175,10 +175,10 @@ data1 = [10, 12, 12, 16, 18]
 data2 = [10, 12, 12, 16, 150]
 print(f"Data1 Mean: {np.mean(data1)}")
 print(f"Data1 Median: {np.median(data1)}")
-print(f"Data1 Mode: {stats.mode(data1)}")
+print(f"Data1 Mode: {stats.mode(data1).mode[0]}")
 print(f"Data2 Mean: {np.mean(data2)}")
 print(f"Data2 Median: {np.median(data2)}")
-print(f"Data2 Mode: {stats.mode(data2)}")
+print(f"Data2 Mode: {stats.mode(data2).mode[0]}")
 
 # I think the median and mean are so different for data2 because of the outlier (150), which skews the distribution's mean upwards while the median remains relatively unchanged.
 
@@ -187,12 +187,12 @@ print(f"Data2 Mode: {stats.mode(data2)}")
 # Hypothesis Question 1 > independent samples t-test
 group_a = [72, 68, 75, 70, 69, 73, 71, 74]
 group_b = [80, 85, 78, 83, 82, 86, 79, 84]
-t_stat, p_val = stats.ttest_ind(group_a, group_b)
-print(f"T-statistic: {t_stat}")
-print(f"P-value: {p_val}\n")
+t_stat1, p_val1 = stats.ttest_ind(group_a, group_b)
+print(f"T-statistic: {t_stat1}")
+print(f"P-value: {p_val1}\n")
 
 # Hypothesis Question 2 > alpha = 0.05
-if p_val < 0.05:
+if p_val1 < 0.05:
     print("P-value result is statistically significant.\n")
 else:
     print("P-value result is not statistically significant.\n")
@@ -200,9 +200,9 @@ else:
 # Hypothesis Question 3 > paired t-test
 before = [60, 65, 70, 58, 62, 67, 63, 66]
 after = [68, 70, 76, 65, 69, 72, 70, 71]
-t_stat, p_val = stats.ttest_rel(before, after)
-print(f"T-statistic: {t_stat}")
-print(f"P-value: {p_val}\n")
+t_stat3, p_val3 = stats.ttest_rel(before, after)
+print(f"T-statistic: {t_stat3}")
+print(f"P-value: {p_val3}\n")
 
 # Hypothesis Question 4 > one-sample t-test
 scores = [72, 68, 75, 70, 69, 74, 71, 73]
@@ -211,12 +211,12 @@ print(f"T-statistic: {t_stat}")
 print(f"P-value: {p_val}\n")
 
 # Hypothesis Question 5 > one-tailed test
-t_stat, p_val = stats.ttest_ind(group_a, group_b, alternative="less")
-print(f"T-statistic: {t_stat}")
-print(f"P-value: {p_val}\n")
+t_stat4, p_val4 = stats.ttest_ind(group_a, group_b, alternative="less")
+print(f"T-statistic: {t_stat4}")
+print(f"P-value: {p_val4}\n")
 
 # Hypothesis Question 6
-if p_val < 0.05:
+if p_val1 < 0.05:
     print(
         "Statistically significant difference between scores, with group_a having lower scores than group_b. Unlikely due to chance.\n"
     )
