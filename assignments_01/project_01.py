@@ -106,7 +106,7 @@ def visual_exploration(df, output_dir):
     data_by_year = [
         df[df["year"] == y]["happiness_score"].dropna().values for y in years_sorted
     ]
-    ax.boxplot(data_by_year, labels=years_sorted)
+    ax.boxplot(data_by_year, label=years_sorted)
     ax.set_title("Happiness Score Distribution by Year")
     ax.set_xlabel("Year")
     ax.set_ylabel("Happiness Score")
@@ -225,7 +225,7 @@ def correlation_analysis(df):
 
 
 @task
-def summary_report(df, hypothesis, cor_results):
+def summary_report(df, ht, ca):
     logger = get_run_logger()
     logger.info("------ Task 6: Summary Report")
 
@@ -250,9 +250,9 @@ def summary_report(df, hypothesis, cor_results):
     ).items():
         logger.info(f"{region}: {score:.4f}")
 
-    logger.info(f"Conclusion for pre/post-2020 t-test: {hypothesis}")
+    logger.info(f"Conclusion for pre/post-2020 t-test: {ht}")
     logger.info(
-        f"Variable most strongly correlated with happiness score (after Bonferroni correction): {cor_results['strongest_var']}"
+        f"Variable most strongly correlated with happiness score (after Bonferroni correction): {ca['strongest_var']}"
     )
 
 
@@ -262,7 +262,7 @@ def happiness_pipeline():
     df = load_data(YEARS, DATA_DIR, OUTPUT_DIR)
     df = descriptive_stats(df)
     visual_exploration(df, OUTPUT_DIR)
-    summary_report(df, hypothesis_testing(df), correlation_analysis(df))
+    summary_report(df, ht=hypothesis_testing(df), ca=correlation_analysis(df))
 
 
 if __name__ == "__main__":

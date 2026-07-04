@@ -159,7 +159,7 @@ plt.show()
 # Descriptive Stats Question 3
 group_a = [55, 60, 63, 70, 68, 62, 58, 65]
 group_b = [75, 80, 78, 90, 85, 79, 82, 88]
-plt.boxplot([group_a, group_b], tick_labels=["Group A", "Group B"])
+plt.boxplot([group_a, group_b], labels=["Group A", "Group B"])
 plt.title("Score Comparison")
 plt.ylabel("Scores")
 plt.show()
@@ -167,7 +167,7 @@ plt.show()
 # Descriptive Stats Question 4
 normal_data = np.random.normal(50, 5, 200)
 skewed_data = np.random.exponential(10, 200)
-plt.boxplot([normal_data, skewed_data], tick_labels=["Normal", "Exponential"])
+plt.boxplot([normal_data, skewed_data], labels=["Normal", "Exponential"])
 plt.title("Distribution Comparison")
 plt.ylabel("Values")
 plt.show()
