@@ -106,7 +106,7 @@ def visual_exploration(df, output_dir):
     data_by_year = [
         df[df["year"] == y]["happiness_score"].dropna().values for y in years_sorted
     ]
-    ax.boxplot(data_by_year, tick_labels=years_sorted)
+    ax.boxplot(data_by_year, labels=years_sorted)
     ax.set_title("Happiness Score Distribution by Year")
     ax.set_xlabel("Year")
     ax.set_ylabel("Happiness Score")
