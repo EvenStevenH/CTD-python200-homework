@@ -20,11 +20,10 @@ model.fit(years, salary)  # fit
 pred_4_years = model.predict(np.array([[4]]))  # predict
 pred_8_years = model.predict(np.array([[8]]))  # predict
 
-print(years.shape, years.ndim)
 print(f"Slope: {model.coef_[0]}")
 print(f"Intercept: {model.intercept_}")
-print(f"Predicted salary for 4 years of exp: {pred_4_years[0]}")
-print(f"Predicted salary for 8 years of exp: {pred_8_years[0]}\n")
+print(f"Predicted salary for 4 years of experience: {pred_4_years[0]}")
+print(f"Predicted salary for 8 years of experience: {pred_8_years[0]}\n")
 
 # ---------------------------------------------------------------------------- #
 # scikit-learn Question 2

@@ -7,11 +7,12 @@ from sklearn.metrics import mean_squared_error, r2_score
 import numpy as np
 
 # ---------------------------------------------------------------------------- #
-# Task 1: Load and Explore > pre-preprocessing
+# Task 1: Load and Explore
 
+# pre-preprocessing > use semicolon separator
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(BASE_DIR, "student_performance_math.csv")
-df = pd.read_csv(path, sep=";")  # use semicolon separator
+df = pd.read_csv(path, sep=";")
 
 print("Shape of dataset:", df.shape)
 print("First 5 rows:\n", df.head())
@@ -67,17 +68,7 @@ numeric_features = [
 correlations = df2[numeric_features + ["G3"]].corr()["G3"].sort_values()
 print("Correlation of numeric features with G3 (sorted):")
 print(correlations, "\n")
-# "failures" > strongest negative relationship > as it increases, predicted grade decreases
-# "higher" (wanting to pursue higher education) > strongest positive relationship
-
-plt.figure(figsize=(10, 6))
-plt.scatter(df2["absences"], df2["G3"])
-plt.title("Absences vs Final Grade")
-plt.xlabel("Number of Absences")
-plt.ylabel("Final Grade (G3)")
-plt.savefig("outputs/g3_vs_absences.png")
-plt.close()
-# students with lower absence counts tend to have high grades
+# "failures" has the strongest negative relationship with G3; as it increases, predicted grade decreases. "higher" has the strongest positive relationship; students wanting to pursue higher education score better. Surprisingly, absences only show a moderate negative correlation after filtering, which implies that attendance is less determinative within exam-takers.
 
 fig, ax = plt.subplots(figsize=(10, 6))
 failure_groups = [
@@ -90,8 +81,7 @@ ax.set_xlabel("Past Failures")
 ax.set_ylabel("G3 (Final Grade)")
 fig.savefig("outputs/g3_by_failures.png", bbox_inches="tight")
 plt.close(fig)
-# students with 0 past failures have a higher grade distribution
-# additional failures shift the median down > strong predictor
+# Students with 0 past failures have a higher and tighter grade distribution. Each additional failure shifts the median down, showing that past failures is a strong predictor.
 
 fig, ax = plt.subplots(figsize=(10, 6))
 groups = [df2[df2["higher"] == v]["G3"].values for v in [0, 1]]
@@ -101,7 +91,7 @@ ax.set_xlabel("Wants Higher Education")
 ax.set_ylabel("G3 (Final Grade)")
 fig.savefig("outputs/g3_by_higher.png", bbox_inches="tight")
 plt.close(fig)
-# students wanting to pursue higher education score higher on average
+# Students wanting to pursue higher education score notably higher on average. The "Yes" group has a surprisingly wider range of grades, suggesting more motivation or more obstacles in their studies.
 
 # ---------------------------------------------------------------------------- #
 # Task 4: Baseline Model > use failures alone to predict G3
@@ -163,12 +153,11 @@ print(f"Full Model RMSE: {rmse_full:.2f}\n")
 for name, coef in zip(feature_cols, model_full.coef_):
     print(f"{name:12s}: {coef:+.3f}")  # coefficients
 
-# schoolsup > 1st largest negative coefficient > perhaps for students who have lower grades > does not reflect if it helps
-# failures > 2nd largest negative coefficient > more past failures, lower predicted grade
-# higher > largest positive coefficient > those wanting to pursue higher education correlates with better performance
-# male students score slightly higher on average > PISA research links gap to social context, not inherent ability
-# train and test R² are close > suggests model is not overfitting and generalizes well
-# In production, I might keep the features with the larger coefficients that can be interpreted clearly: failures, higher, Medu, studytime, schoolsup, and sex. I might consider dropping   Fedu, activities, internet, freetime, and traveltime.
+# "schoolsup" is the first largest negative coefficient (-2.062), which is perhaps due to students who already have lower grades and does not necessarily reflect if the extra school support is helping. "failures" is the second largest negative coefficient (-1.145); more past failures, the lower the predicted grade.
+# "higher" is the largest positive coefficient (+0.610), suggesting that those wanting to pursue higher education correlates with better performance.
+# "sex" is among the larger positive coefficients (+0.453); male students are scoring slightly higher on average, although PISA research links gap to social context and not inherent ability.
+# train and test R² are close with a small gap, suggesting that the model is not overfitting, generalizing about as well as it fits the training data.
+# In production, I might keep the features with the larger coefficients that can be interpreted clearly: failures, higher, Medu, studytime, schoolsup, and sex. I might consider dropping Fedu, activities, internet, freetime, and traveltime.
 
 # ---------------------------------------------------------------------------- #
 # Task 6: Evaluate and Summarize
@@ -191,19 +180,27 @@ plt.legend()
 plt.savefig("outputs/predicted_vs_actual.png", bbox_inches="tight")
 plt.close()
 
-# Errors were roughly uniform across grade levels. A value above the diagonal means the model under-predicted that a student did better than expected, while lower mean it over-predicted the student performing worse.
+# Analysis of prediction errors: errors were roughly uniform across grade levels. A value above the diagonal means the model under-predicted that a student did better than expected, while lower mean it over-predicted the student performing worse. The spread's widest in the middle range (9-13), where most student scores cluster.
 
-print("\nSummary of findings:")
-print(f"Dataset size (after): {len(df2)} students")
-print(f"Test set size: {len(y_test)} students")
+print("\nPlain-language summary of findings:")
 print(
+    f"Dataset size (after filtering): {len(df2)} students\n"
+    f"Test set size: {len(y_test)} students\n"
+    "Model Performance:\n"
     f"Baseline model (only 'failures') had RMSE={rmse_baseline:.2f} and R²={r2_baseline:.3f}\n"
     f"Full model (all features) had RMSE={rmse_full:.2f}, Train R²={model_full.score(X_train, y_train):.3f}, Test R²={r2_full:.3f}"
 )
 
-# largest positive coefficients > internet (+0.834) and higher (+0.610) > higher coefficient meant lower scores
-# largest negative coefficients > schoolsup (-2.062) and failures: (-1.145) > lower coefficient meant lower scores
-# schoolsup seems slightly surprising, but may be counterintuitive
+print("\nFeature Impact:")
+coef_dict = dict(zip(feature_cols, model_full.coef_))
+top2_pos = sorted(coef_dict, key=lambda k: coef_dict[k], reverse=True)[:2]
+top2_neg = sorted(coef_dict, key=lambda k: coef_dict[k])[:2]
+print("\nLargest positive coefficients:")
+for feature in top2_pos:
+    print(f"  {feature}: {coef_dict[feature]:+.3f}")
+print("Largest negative coefficients:")
+for feature in top2_neg:
+    print(f"  {feature}: {coef_dict[feature]:+.3f}")
 
 # ---------------------------------------------------------------------------- #
 # Neglected Feature: The Power of G1
