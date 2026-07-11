@@ -12,8 +12,8 @@ import numpy as np
 
 # pre-preprocessing > use semicolon separator
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")
-os.makedirs(OUTPUTS_DIR, exist_ok=True)
+OUTPUT_DIR = os.path.join(BASE_DIR, "outputs")
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 path = os.path.join(BASE_DIR, "student_performance_math.csv")
 df = pd.read_csv(path, sep=";")
@@ -28,7 +28,7 @@ plt.hist(df["G3"], bins=21, edgecolor="black")
 plt.title("Distribution of Final Math Grades")
 plt.xlabel("Grade (0-20)")
 plt.ylabel("Frequency")
-plt.savefig("outputs/g3_distribution.png")
+plt.savefig(os.path.join(OUTPUT_DIR, "g3_distribution.png"))
 
 # The zeros are a separate group representing students who did not take the final exam.
 
@@ -92,7 +92,7 @@ ax.boxplot(failure_groups, tick_labels=failure_labels)
 ax.set_title("G3 Distribution by Number of Past Failures")
 ax.set_xlabel("Past Failures")
 ax.set_ylabel("G3 (Final Grade)")
-fig.savefig("outputs/g3_by_failures.png", bbox_inches="tight")
+fig.savefig(os.path.join(OUTPUT_DIR, "g3_by_failures.png"), bbox_inches="tight")
 plt.close(fig)
 # This is a boxplot showing G3 by number of past failures. Students with 0 past failures have a higher and tighter grade distribution. Each additional failure shifts the median down, showing that past failures is a strong predictor.
 
@@ -102,7 +102,7 @@ ax.boxplot(groups, tick_labels=["No (0)", "Yes (1)"])
 ax.set_title("G3 Distribution by Higher-Education Aspiration")
 ax.set_xlabel("Wants Higher Education")
 ax.set_ylabel("G3 (Final Grade)")
-fig.savefig("outputs/g3_by_higher.png", bbox_inches="tight")
+fig.savefig(os.path.join(OUTPUT_DIR, "g3_by_higher.png"), bbox_inches="tight")
 plt.close(fig)
 # This is a boxplot showing G3 by "higher". Students wanting to pursue higher education score notably higher on average. The "Yes" group has a surprisingly wider range of grades, suggesting more motivation or more obstacles in their studies.
 
@@ -191,12 +191,11 @@ plt.title("Predicted vs Actual (Full Model)")
 plt.xlabel("Predicted G3")
 plt.ylabel("Actual G3")
 plt.legend()
-plt.savefig("outputs/predicted_vs_actual.png", bbox_inches="tight")
+plt.savefig(os.path.join(OUTPUT_DIR, "predicted_vs_actual.png"), bbox_inches="tight")
 plt.close()
 
 # Analysis of prediction errors: errors were roughly uniform across grade levels. A point above the diagonal means the model under-predicted (true value is greater than the prediction), while lower means it over-predicted (true value is lower than the prediction). The spread's widest in the middle range (9-13), where most student scores cluster.
 
-print("\nPlain-language summary of findings:\n")
 print(
     f"Dataset size (after filtering): {len(df2)} students\n"
     f"Test set size: {len(y_test)} students\n"
@@ -204,7 +203,7 @@ print(
 print(
     "Baseline model (only 'failures'):\n"
     f"Baseline model RMSE: {rmse_baseline:.2f}\n"
-    f"R²={r2_baseline:.3f}\n"
+    f"Baseline model R²={r2_baseline:.3f}\n"
 )
 print(
     "Best model (all features):\n"
@@ -214,11 +213,14 @@ print(
     f"(explains ~{r2_full*100:.0f}% of variance in final grades)\n"
 )
 
-print("\nFeature Impact:")
+# Plain-language summary of findings
+# Dataset size (after filtering) is 357 students, and the test set size was 72 students. For the baseline model (using only the "failures" feature), RMSE=2.96 and R²=0.089. For the best model (using all features), RMSE=2.86 (typical error ~2.9 points on a 0-20 grading scale) and R²=0.1539 (explains ~15% of variance in final grades).
+
+print("Feature Impact:")
 coef_dict = dict(zip(feature_cols, model_full.coef_))
 top2_pos = sorted(coef_dict, key=lambda k: coef_dict[k], reverse=True)[:2]
 top2_neg = sorted(coef_dict, key=lambda k: coef_dict[k])[:2]
-print("\nThe two largest positive coefficients:")
+print("The two largest positive coefficients:")
 for feature in top2_pos:
     print(f"  {feature}: {coef_dict[feature]:+.3f}")
 print("The two largest negative coefficients:")

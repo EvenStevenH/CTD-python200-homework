@@ -152,4 +152,4 @@ plt.legend()
 plt.savefig("outputs/predicted_vs_actual.png", bbox_inches="tight")
 plt.close()
 
-# Points above the diagonal represent cases where the model's prediction is higher than the actual cost (overestimations). Points below the diagonal represent cases where the model's prediction is lower than the actual cost (underestimations).
+# Points above the diagonal represent cases where the actual cost is higher than the model's prediction, and points below the diagonal represent cases where the actual cost is lower than the model's prediction.
