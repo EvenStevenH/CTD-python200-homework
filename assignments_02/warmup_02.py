@@ -53,9 +53,9 @@ plt.scatter(
     c="black",
     marker="X",
 )
-plt.title("KMeans Clustering")
-plt.xlabel("Feature 1")
-plt.ylabel("Feature 2")
+plt.title("KMeans Clusters")
+plt.xlabel("y feature")
+plt.ylabel("x feature")
 plt.savefig("outputs/kmeans_clusters.png")
 
 # ---------------------------------------------------------------------------- #

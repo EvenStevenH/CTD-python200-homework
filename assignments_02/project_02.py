@@ -30,13 +30,15 @@ plt.xlabel("Grade (0-20)")
 plt.ylabel("Frequency")
 plt.savefig("outputs/g3_distribution.png")
 
+# The zeros are a separate group representing students who did not take the final exam.
+
 # ---------------------------------------------------------------------------- #
 # Task 2: Preprocess the Data
 
-df2 = df[df["G3"] != 0].copy()
+df2 = df[df["G3"] != 0].copy()  # filter out G3=0 rows
 print("Shape (before):", df.shape)
 print("Shape (after):", df2.shape)
-# filter out G3=0 rows > prevent biasing target variable (G3), because they aren't representative of actual student performance
+# This prevents biasing target variable (G3), because they aren't representative of actual student performance. That is, those rows mix non-attempts with real grades, which can make attendance look less predictive than it truly is among students who actually took the exam.
 
 yes_no_columns = ["schoolsup", "internet", "higher", "activities"]
 for col in yes_no_columns:
@@ -161,10 +163,11 @@ r2_full = r2_score(y_test, y_pred_full)
 print(f"Train R²: {model_full.score(X_train, y_train):.3f}")
 print(f"Full Model Test R²: {r2_full:.3f}")
 print(f"Full Model RMSE: {rmse_full:.2f}\n")
+print("Coefficients:")
 for name, coef in zip(feature_cols, model_full.coef_):
     print(f"{name:12s}: {coef:+.3f}")  # coefficients
 
-# "schoolsup" is the first largest negative coefficient (-2.062), which is perhaps due to students who already have lower grades and does not necessarily reflect if the extra school support is helping. "failures" is the second largest negative coefficient (-1.145); more past failures, the lower the predicted grade.
+# "failures" is the largest negative coefficient (-1.145); more past failures, the lower the predicted grade.
 # "higher" is the largest positive coefficient (+0.610), suggesting that those wanting to pursue higher education correlates with better performance.
 # "sex" is among the larger positive coefficients (+0.453); male students are scoring slightly higher on average, although PISA research links gap to social context and not inherent ability.
 # train and test R² are close with a small gap, suggesting that the model is not overfitting, generalizing about as well as it fits the training data.
@@ -215,10 +218,10 @@ print("\nFeature Impact:")
 coef_dict = dict(zip(feature_cols, model_full.coef_))
 top2_pos = sorted(coef_dict, key=lambda k: coef_dict[k], reverse=True)[:2]
 top2_neg = sorted(coef_dict, key=lambda k: coef_dict[k])[:2]
-print("\nLargest positive coefficients:")
+print("\nThe two largest positive coefficients:")
 for feature in top2_pos:
     print(f"  {feature}: {coef_dict[feature]:+.3f}")
-print("Largest negative coefficients:")
+print("The two largest negative coefficients:")
 for feature in top2_neg:
     print(f"  {feature}: {coef_dict[feature]:+.3f}")
 
@@ -249,4 +252,4 @@ print(
     f"\nRMSE: {rmse_g1:.2f}"
 )
 
-# Correlation is not causation; high R² here does not necessarily mean G1 is causing G3. The correlation stems from both measuring how well the student understands math. On another note, I think the model could already help to identify struggling students on G1 to decide if early action is needed. It could also help for long-term support, but I think the best model can let educators flag students via features, even before G1 any and other grade information if retrieved.
+# Correlation is not causation; high R² here does not necessarily mean G1 is causing G3. The correlation stems from both measuring how well the student understands math. Nonetheless, I think the model could already help to identify struggling students on G1 to decide if early intervention is needed, and more data/scores can reinforce the need for long-term support. The best, most useful model can let educators flag students via background features (such as failures and study time), even before G1 is available.
