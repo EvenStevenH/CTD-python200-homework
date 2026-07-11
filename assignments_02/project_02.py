@@ -225,7 +225,7 @@ print("The two largest negative coefficients:")
 for feature in top2_neg:
     print(f"  {feature}: {coef_dict[feature]:+.3f}")
 
-# The largest positive coefficients were "internet" (+0.834) and "higher" (+0.610), and the largest negative coefficients were "schoolsup" (-2.062) and "failures" (-1.145). "schoolsup" having a negative coefficient is a bit surprising, but I believe this may be counterintuitive; this inherently identifies the struggling student but does not measure how effective the support is in their math scores.
+# The largest positive coefficients were "internet" (+0.834) and "higher" (+0.610), indicating that students with internet access at home and those who pursue higher education tend to score better in math. Conversely, the largest negative coefficients were "schoolsup" (-2.062) and "failures" (-1.145). "schoolsup" having a negative coefficient is a bit surprising, but I believe this may be counterintuitive; this inherently identifies the struggling student but does not measure how effective the support is in their math scores.
 
 # ---------------------------------------------------------------------------- #
 # Neglected Feature: The Power of G1

@@ -32,7 +32,7 @@ print(x.shape, x.ndim)
 x_reshaped = x.reshape(-1, 1)
 print(x_reshaped.shape, x_reshaped.ndim, "\n")
 
-# Even when there's only one feature, Scikit-learn needs x to be 2D because it expects input data in a consistent format. Each row represents a sample and each column represents a feature.
+# Scikit-learn needs x to be 2D because it expects input data in a consistent format, even when there's only one feature. Each row represents a sample and each column represents a feature.
 
 # ---------------------------------------------------------------------------- #
 # scikit-learn Question 3
@@ -145,7 +145,7 @@ plt.plot(
     linewidth=2,
     label="Perfect Prediction Line",
 )
-plt.title("Predicted vs Actual Medical Costs")
+plt.title("Predicted vs Actual")
 plt.xlabel("Predicted Cost")
 plt.ylabel("Actual Cost")
 plt.legend()
