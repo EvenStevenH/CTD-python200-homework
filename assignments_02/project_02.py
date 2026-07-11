@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+from scipy.stats import pearsonr
 import numpy as np
 
 # ---------------------------------------------------------------------------- #
@@ -11,6 +12,9 @@ import numpy as np
 
 # pre-preprocessing > use semicolon separator
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+OUTPUTS_DIR = os.path.join(BASE_DIR, "outputs")
+os.makedirs(OUTPUTS_DIR, exist_ok=True)
+
 path = os.path.join(BASE_DIR, "student_performance_math.csv")
 df = pd.read_csv(path, sep=";")
 
@@ -65,9 +69,16 @@ numeric_features = [
     "activities",
     "sex",
 ]
-correlations = df2[numeric_features + ["G3"]].corr()["G3"].sort_values()
-print("Correlation of numeric features with G3 (sorted):")
-print(correlations, "\n")
+correlations = {}
+for col in numeric_features:
+    r, _ = pearsonr(df2[col], df2["G3"])
+    correlations[col] = r
+
+sorted_corr = sorted(correlations.items(), key=lambda x: x[1])
+print("\nPearson correlations with G3 (most negative to most positive):")
+for col, r in sorted_corr:
+    print(f"  {col:12s}: {r:+.4f}")
+
 # "failures" has the strongest negative relationship with G3; as it increases, predicted grade decreases. "higher" has the strongest positive relationship; students wanting to pursue higher education score better. Surprisingly, absences only show a moderate negative correlation after filtering, which implies that attendance is less determinative within exam-takers.
 
 fig, ax = plt.subplots(figsize=(10, 6))
@@ -81,7 +92,7 @@ ax.set_xlabel("Past Failures")
 ax.set_ylabel("G3 (Final Grade)")
 fig.savefig("outputs/g3_by_failures.png", bbox_inches="tight")
 plt.close(fig)
-# Students with 0 past failures have a higher and tighter grade distribution. Each additional failure shifts the median down, showing that past failures is a strong predictor.
+# This is a boxplot showing G3 by number of past failures. Students with 0 past failures have a higher and tighter grade distribution. Each additional failure shifts the median down, showing that past failures is a strong predictor.
 
 fig, ax = plt.subplots(figsize=(10, 6))
 groups = [df2[df2["higher"] == v]["G3"].values for v in [0, 1]]
@@ -91,7 +102,7 @@ ax.set_xlabel("Wants Higher Education")
 ax.set_ylabel("G3 (Final Grade)")
 fig.savefig("outputs/g3_by_higher.png", bbox_inches="tight")
 plt.close(fig)
-# Students wanting to pursue higher education score notably higher on average. The "Yes" group has a surprisingly wider range of grades, suggesting more motivation or more obstacles in their studies.
+# This is a boxplot showing G3 by "higher". Students wanting to pursue higher education score notably higher on average. The "Yes" group has a surprisingly wider range of grades, suggesting more motivation or more obstacles in their studies.
 
 # ---------------------------------------------------------------------------- #
 # Task 4: Baseline Model > use failures alone to predict G3
@@ -180,15 +191,24 @@ plt.legend()
 plt.savefig("outputs/predicted_vs_actual.png", bbox_inches="tight")
 plt.close()
 
-# Analysis of prediction errors: errors were roughly uniform across grade levels. A value above the diagonal means the model under-predicted that a student did better than expected, while lower mean it over-predicted the student performing worse. The spread's widest in the middle range (9-13), where most student scores cluster.
+# Analysis of prediction errors: errors were roughly uniform across grade levels. A point above the diagonal means the model under-predicted (true value is greater than the prediction), while lower means it over-predicted (true value is lower than the prediction). The spread's widest in the middle range (9-13), where most student scores cluster.
 
-print("\nPlain-language summary of findings:")
+print("\nPlain-language summary of findings:\n")
 print(
     f"Dataset size (after filtering): {len(df2)} students\n"
     f"Test set size: {len(y_test)} students\n"
-    "Model Performance:\n"
-    f"Baseline model (only 'failures') had RMSE={rmse_baseline:.2f} and R²={r2_baseline:.3f}\n"
-    f"Full model (all features) had RMSE={rmse_full:.2f}, Train R²={model_full.score(X_train, y_train):.3f}, Test R²={r2_full:.3f}"
+)
+print(
+    "Baseline model (only 'failures'):\n"
+    f"Baseline model RMSE: {rmse_baseline:.2f}\n"
+    f"R²={r2_baseline:.3f}\n"
+)
+print(
+    "Best model (all features):\n"
+    f"Best model RMSE: {rmse_full:.2f}\n"
+    f"(typical error ~{rmse_full:.1f} points on a 0-20 grading scale)\n"
+    f"Best model R²: {r2_full:.4f}\n"
+    f"(explains ~{r2_full*100:.0f}% of variance in final grades)\n"
 )
 
 print("\nFeature Impact:")
@@ -201,6 +221,8 @@ for feature in top2_pos:
 print("Largest negative coefficients:")
 for feature in top2_neg:
     print(f"  {feature}: {coef_dict[feature]:+.3f}")
+
+# The largest positive coefficients were "internet" (+0.834) and "higher" (+0.610), and the largest negative coefficients were "schoolsup" (-2.062) and "failures" (-1.145). "schoolsup" having a negative coefficient is a bit surprising, but I believe this may be counterintuitive; this inherently identifies the struggling student but does not measure how effective the support is in their math scores.
 
 # ---------------------------------------------------------------------------- #
 # Neglected Feature: The Power of G1
