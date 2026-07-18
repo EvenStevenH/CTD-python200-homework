@@ -149,8 +149,8 @@ pca.fit(X_train_scaled)
 cum_var = np.cumsum(pca.explained_variance_ratio_)
 n = int(np.argmax(cum_var >= 0.90)) + 1  # n_components
 
-X_train_pca = pca.transform(X_train_scaled)
-X_test_pca = pca.transform(X_test_scaled)
+X_train_pca = pca.transform(X_train_scaled)[:, :n]
+X_test_pca = pca.transform(X_test_scaled)[:, :n]
 
 plt.figure(figsize=(6, 4))
 plt.plot(cum_var)
