@@ -182,15 +182,15 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
 fig, axes = plt.subplots(len(n_values) + 1, 5, figsize=(15, 10))
 for i in range(5):  # original row
     axes[0, i].imshow(images[i], cmap="gray_r")
-    axes[0, i].set_title(f"Original: {y_digits[i]}")
+    axes[0, i].set_title("Original")
     axes[0, i].axis("off")
 
-for row, n in enumerate(n_values, start=1):  # reconstructed rows
+for row_idx, n in enumerate(n_values, start=1):  # reconstructed rows
     for col in range(5):
         reconstructed_image = reconstruct_digit(col, scores, pca, n)
-        axes[row, col].imshow(reconstructed_image, cmap="gray_r")
-        axes[row, col].set_title(f"n={n}")
-        axes[row, col].axis("off")
+        axes[row_idx, col].imshow(reconstructed_image, cmap="gray_r")
+        axes[row_idx, col].set_title(f"n={n}")
+        axes[row_idx, col].axis("off")
 plt.suptitle("PCA Reconstructions of Digits")
 plt.tight_layout()
 plt.savefig("outputs/pca_reconstructions.png")

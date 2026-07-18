@@ -215,12 +215,12 @@ for depth in [3, 5, 10, None]:
     print(
         f"max_depth={depth}: Train Accuracy: {train_acc:.4f}, Test Accuracy: {test_acc:.4f}"
     )
-DEPTH = 10
-dt_final = DecisionTreeClassifier(random_state=42, max_depth=DEPTH)
+CHOSEN_DEPTH = 10
+dt_final = DecisionTreeClassifier(random_state=42, max_depth=CHOSEN_DEPTH)
 dt_final.fit(X_train, y_train)
 dt_pred = dt_final.predict(X_test)
 print(
-    f"Chosen depth: {DEPTH} -- Accuracy: {accuracy_score(y_test, dt_pred):.4f}\n"
+    f"Chosen depth: {CHOSEN_DEPTH} -- Accuracy: {accuracy_score(y_test, dt_pred):.4f}\n"
     f"{classification_report(y_test, dt_pred, target_names=["Ham", "Spam"])}\n"
 )
 
@@ -252,6 +252,7 @@ plt.figure(figsize=(8, 6))
 rf_imp.sort_values().plot(kind="barh")
 plt.title("Top 10 Random Forest Feature Importances")
 plt.xlabel("Importance")
+plt.ylabel("Feature")
 plt.tight_layout()
 plt.savefig("outputs/feature_importances.png")
 plt.close()
@@ -307,7 +308,7 @@ cv_models = [
         ),
         X_train,
     ),
-    (f"Decision Tree (depth={DEPTH})", dt_final, X_train),
+    (f"Decision Tree (depth={CHOSEN_DEPTH})", dt_final, X_train),
     ("Random Forest", rf, X_train),
 ]
 for name, model, Xtr in cv_models:
