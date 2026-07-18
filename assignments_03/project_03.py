@@ -219,7 +219,7 @@ for depth in [3, 5, 10, None]:
         f"max_depth={depth}: Training Accuracy: {train_acc:.4f}, Testing Accuracy: {test_acc:.4f}"
     )
 
-# Depth 10 gave the highest (or tied-highest) test accuracy while avoiding the stronger overfitting seen with an unrestricted tree; a good balance between training and test performance. The training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of depth=None (unlimited), which became lower than the test accuracy at depth=10).
+# Based on the printed Decision Tree Depth Comparisons, the training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of test accuracy at depth=None (unlimited), which became lower than that at depth=10). depth=10 will be selected because it gave the highest test accuracy while avoiding the stronger overfitting seen with an unrestricted tree, and it is a good balance between training and test performance.
 CHOSEN_DEPTH = 10
 dt_final = DecisionTreeClassifier(random_state=42, max_depth=CHOSEN_DEPTH)
 dt_final.fit(X_train, y_train)
@@ -354,6 +354,6 @@ for name, pipeline, Xtr, Xte, manual_acc in [
         f"{classification_report(y_test, y_pred_pipe, target_names=["Ham", "Spam"])}\n"
     )
 
-# The Random Forest pipeline only needed the classifier and no prior preprocessing/scaling. The Logistic Regression pipeline reproduces the best non-tree workflow by applying scaling before classification, with PCA intentionally omitted because it did not improve performance in the earlier comparison. In both pipelines, the difference should be 0.0000 to to confirm that both are using the same data and correctly reproducing the manual workflow.
+# The Random Forest pipeline only needed the classifier and no prior preprocessing/scaling. Conversely, the Logistic Regression pipeline reproduces the best non-tree workflow and requires preprocessing by applying scaling before classification, with PCA intentionally omitted (because it did not improve performance in earlier comparisons). In both pipelines, the difference should be 0.0000 to to confirm that both are using the same data and correctly reproducing the manual workflow.
 
 # Pipelines have practical value in making workflows less prone to missing steps and more easier to maintain, especially when working with other developers. Any preprocessing (such as scaling) are applied when needed in a predictable order, ensuring scalers are fit on each fold's training data only and preventing data leakage.

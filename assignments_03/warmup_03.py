@@ -193,7 +193,7 @@ for j, n in enumerate(n_values):  # reconstructed rows
     row_idx = i + 1
     for k, idx in enumerate(sample_indices):
         reconstructed = reconstruct_digit(idx, scores, pca, n)
-        axes[row_idx, j].imshow(reconstructed, cmap="gray")
+        axes[row_idx, j].imshow(reconstructed, cmap="gray_r")
         axes[row_idx, j].set_title(f"n={n}")
         axes[row_idx, j].axis("off")
 plt.suptitle("PCA Reconstructions of Digits")
