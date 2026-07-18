@@ -136,12 +136,13 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 print(f"Training set size: {X_train.shape}\n" f"Testing set size: {X_test.shape}\n")
 
-# You have to scale features because PCA finds directions of maximum variance and features with larger raw values (such as "capital_run_length_total") would dominate without standardization.
+# You have to scale features because PCA finds directions of maximum variance and features with larger raw values (such as "capital_run_length_total") would dominate without standardization. Fit preprocessing only on the training data to avoid data leakage, while keeping both the full scaled data and the PCA-reduced data because later comparisons evaluate models with and without dimensionality reduction.
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+# PCA is fit only on the scaled training data. The test data is transformed using the fitted PCA model.
 pca = PCA()
 pca.fit(X_train_scaled)
 
@@ -164,9 +165,11 @@ plt.savefig("outputs/pca_variance_explained.png")
 plt.close()
 
 print(
-    f"Number of PCA components to explain 90% variance: {n}\n"  # 43
-    f"PCA-reduced train shape: {X_train_pca.shape}\n"
-    f"PCA-reduced test shape:  {X_test_pca.shape}\n"
+    f"90% cumulative explained variance reached at {n} principal components.\n"
+    f"Scaled training shape: {X_train_scaled.shape}\n"
+    f"Scaled testing shape: {X_test_scaled.shape}\n"
+    f"PCA-reduced training shape: {X_train_pca.shape}\n"
+    f"PCA-reduced testing shape: {X_test_pca.shape}\n"
 )
 
 # ---------------------------------------------------------------------------- #
@@ -202,7 +205,7 @@ for name, (model, Xtr, Xte) in models.items():  # doesn't overwrite the datasets
     print(f"{name} -- Accuracy: {accuracy_score(y_test, y_pred):.4f}")
     print(classification_report(y_test, y_pred))
 
-# KNN performs poorly on unscaled data, as distance calculations are dominated by features with large numeric ranges (such as "capital_run_length_total" and "capital_run_length_longest"). After scaling, all features contribute equally to distances and improves KNN accuracy by ~0.10. KNN with PCA reduction helps similarly to the scaled version, as it reduced dimensionality. A linear model like Logistic Regression performed decently with scaled features.
+# KNN performs poorly on unscaled data, as distance calculations are dominated by features with large numeric ranges (such as "capital_run_length_total" and "capital_run_length_longest"). After scaling, all features contribute equally to distances and improves KNN accuracy by ~0.10. KNN with PCA slightly outperformed scaled KNN, matching Task 2 because PCA removed redundant dimensions while preserving most of the variance. A linear model like Logistic Regression performed decently with scaled features, but slightly worse with PCA reduction.
 
 # Random Forest performs the best, likely due to how it combines numerous decision trees and averages their predictions. This reduces variance and increases generalization. For this particular dataset, I would use Random Forest for its higher precision on spam (ham labelled as spam, where it makes fewer false positives than false negatives) to minimize the amount of legitimate emails marked incorrectly as spam. False negatives letting some spam through can be easily dealt with through manual user intervention, which I think is a tolerable compromise.
 
@@ -213,8 +216,10 @@ for depth in [3, 5, 10, None]:
     train_acc = accuracy_score(y_train, dt.predict(X_train))
     test_acc = accuracy_score(y_test, dt.predict(X_test))
     print(
-        f"max_depth={depth}: Train Accuracy: {train_acc:.4f}, Test Accuracy: {test_acc:.4f}"
+        f"max_depth={depth}: Training Accuracy: {train_acc:.4f}, Testing Accuracy: {test_acc:.4f}"
     )
+
+# Depth 10 gave the highest (or tied-highest) test accuracy while avoiding the stronger overfitting seen with an unrestricted tree; a good balance between training and test performance. The training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of depth=None (unlimited), which became lower than the test accuracy at depth=10).
 CHOSEN_DEPTH = 10
 dt_final = DecisionTreeClassifier(random_state=42, max_depth=CHOSEN_DEPTH)
 dt_final.fit(X_train, y_train)
@@ -223,8 +228,6 @@ print(
     f"Chosen depth: {CHOSEN_DEPTH} -- Accuracy: {accuracy_score(y_test, dt_pred):.4f}\n"
     f"{classification_report(y_test, dt_pred, target_names=["Ham", "Spam"])}\n"
 )
-
-# I selected a depth of 10 to for a good balance between training and test performance, all while avoiding overfitting. The training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of depth=None (unlimited), which became lower than the test accuracy at depth=10).
 
 # best model confusion matrix
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -323,7 +326,6 @@ print("\n\n------ Task 5: Building a Prediction Pipeline")
 lr_pipeline = Pipeline(  # Logistic Regression (best non-tree model)
     [
         ("scaler", StandardScaler()),  # name, object pattern
-        ("pca", PCA(n_components=n)),  # if PCA helped > n_components from Task 2
         ("classifier", LogisticRegression(C=1.0, max_iter=1000, solver="liblinear")),
     ]
 )
@@ -331,12 +333,12 @@ rf_pipeline = Pipeline(  # Random Forest (best tree model)
     [("classifier", RandomForestClassifier(n_estimators=100, random_state=42))]
 )
 
-# Logistic Regression on scaled data (PCA) > get manual accuracy results
-lr_pca = LogisticRegression(C=1.0, max_iter=1000, solver="liblinear").fit(
-    X_train_pca, y_train
+# Logistic Regression on scaled data > get manual accuracy results
+lr_manual = LogisticRegression(C=1.0, max_iter=1000, solver="liblinear").fit(
+    X_train_scaled, y_train
 )
 rf_acc = accuracy_score(y_test, rf.predict(X_test))
-lr_acc = accuracy_score(y_test, lr_pca.predict(X_test_pca))
+lr_acc = accuracy_score(y_test, lr_manual.predict(X_test_scaled))
 
 for name, pipeline, Xtr, Xte, manual_acc in [
     ("Random Forest Pipeline", rf_pipeline, X_train, X_test, rf_acc),
@@ -352,6 +354,6 @@ for name, pipeline, Xtr, Xte, manual_acc in [
         f"{classification_report(y_test, y_pred_pipe, target_names=["Ham", "Spam"])}\n"
     )
 
-# The Random Forest pipeline only needed the classifier and no prior preprocessing/scaling. The Logistic Regression pipeline needed scaling first (to minimize sensitivity to feature magnitudes) before the classifier, as well as a PCA step that fits on the training data. In both pipelines, the difference should be 0.0000 to to confirm that both are using the same data and correctly reproducing the manual workflow.
+# The Random Forest pipeline only needed the classifier and no prior preprocessing/scaling. The Logistic Regression pipeline reproduces the best non-tree workflow by applying scaling before classification, with PCA intentionally omitted because it did not improve performance in the earlier comparison. In both pipelines, the difference should be 0.0000 to to confirm that both are using the same data and correctly reproducing the manual workflow.
 
 # Pipelines have practical value in making workflows less prone to missing steps and more easier to maintain, especially when working with other developers. Any preprocessing (such as scaling) are applied when needed in a predictable order, ensuring scalers are fit on each fold's training data only and preventing data leakage.

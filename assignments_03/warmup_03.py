@@ -114,7 +114,7 @@ print(
 # use "saga", as "liblinear" only supports binary classification
 print("------ Logistic Regression Q1")
 for C in [0.01, 1.0, 100]:
-    model = LogisticRegression(C=C, max_iter=1000, solver="saga")
+    model = LogisticRegression(C=C, max_iter=1000, solver="liblinear")
     model.fit(X_train_scaled, y_train)
     total_coef_magnitude = np.abs(model.coef_).sum()
     print(f"C={C}, Total Coefficient Magnitude: {total_coef_magnitude:.4f}\n")
@@ -129,11 +129,15 @@ images = digits.images  # same data shaped as 8x8 images for plotting
 
 print("------ PCA Q1")
 print(f"Shape of X_digits: {X_digits.shape}\n" f"Shape of images: {images.shape}\n")
+selected_indices = []
+for label in range(10):  # select ine image per digit before plotting
+    idx = np.where(y_digits == label)[0][0]
+    selected_indices.append(idx)
 plt.figure(figsize=(10, 2))
-for i in range(10):
+for i, idx in enumerate(selected_indices):
     plt.subplot(1, 10, i + 1)
-    plt.imshow(images[i], cmap="gray_r")
-    plt.title(f"Digit {y_digits[i]}")
+    plt.imshow(images[idx], cmap="gray_r")
+    plt.title(f"Digit {y_digits[idx]}")
     plt.axis("off")
 plt.savefig("outputs/sample_digits.png")
 plt.close()
@@ -169,6 +173,7 @@ print("pca_variance_explained.png saved.\n")
 
 print("------ PCA Q4")
 n_values = [2, 5, 15, 40]
+sample_indices = range(5)
 
 
 def reconstruct_digit(sample_idx, scores, pca, n_components):
@@ -179,18 +184,18 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
     return reconstruction.reshape(8, 8)
 
 
-fig, axes = plt.subplots(len(n_values) + 1, 5, figsize=(15, 10))
-for i in range(5):  # original row
-    axes[0, i].imshow(images[i], cmap="gray_r")
-    axes[0, i].set_title("Original")
+fig, axes = plt.subplots(len(n_values) + 1, len(sample_indices), figsize=(8, 6))
+for i, idx in enumerate(sample_indices):  # original row
+    axes[0, i].imshow(images[idx], cmap="gray_r")
+    axes[0, i].set_title(f"Original ({y_digits[idx]})")
     axes[0, i].axis("off")
-
-for row_idx, n in enumerate(n_values, start=1):  # reconstructed rows
-    for col in range(5):
-        reconstructed_image = reconstruct_digit(col, scores, pca, n)
-        axes[row_idx, col].imshow(reconstructed_image, cmap="gray_r")
-        axes[row_idx, col].set_title(f"n={n}")
-        axes[row_idx, col].axis("off")
+for j, n in enumerate(n_values):  # reconstructed rows
+    row_idx = i + 1
+    for k, idx in enumerate(sample_indices):
+        reconstructed = reconstruct_digit(idx, scores, pca, n)
+        axes[row_idx, j].imshow(reconstructed, cmap="gray")
+        axes[row_idx, j].set_title(f"n={n}")
+        axes[row_idx, j].axis("off")
 plt.suptitle("PCA Reconstructions of Digits")
 plt.tight_layout()
 plt.savefig("outputs/pca_reconstructions.png")
