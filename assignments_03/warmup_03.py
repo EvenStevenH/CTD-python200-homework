@@ -168,7 +168,7 @@ plt.grid()
 plt.savefig("outputs/pca_variance_explained.png")
 plt.close()
 print("pca_variance_explained.png saved.\n")
-# Approximately 40-60 components are needed to explain 80% of the variance, depending on the exact cumulative sum at that point.
+# Approximately 40 components are needed to explain 80% of the variance, depending on the exact cumulative sum at that point.
 
 
 print("------ PCA Q4")
@@ -185,17 +185,18 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
 
 
 fig, axes = plt.subplots(len(n_values) + 1, len(sample_indices), figsize=(8, 6))
-for i, idx in enumerate(sample_indices):  # original row
-    axes[0, i].imshow(images[idx], cmap="gray_r")
-    axes[0, i].set_title(f"Original ({y_digits[idx]})")
-    axes[0, i].axis("off")
-for j, n in enumerate(n_values):  # reconstructed rows
-    row_idx = i + 1
-    for k, idx in enumerate(sample_indices):
+for col, idx in enumerate(sample_indices):  # original images (top row)
+    axes[0, col].imshow(images[idx], cmap="gray_r")
+    axes[0, col].set_title(f"Digit {y_digits[idx]}")
+    axes[0, col].axis("off")
+for row, n in enumerate(n_values, start=1):  # reconstructions
+    for col, idx in enumerate(sample_indices):
         reconstructed = reconstruct_digit(idx, scores, pca, n)
-        axes[row_idx, j].imshow(reconstructed, cmap="gray_r")
-        axes[row_idx, j].set_title(f"n={n}")
-        axes[row_idx, j].axis("off")
+        axes[row, col].imshow(reconstructed, cmap="gray_r")
+        axes[row, col].axis("off")
+
+        if col == 0:  # reconstruction label only on the first column
+            axes[row, col].set_ylabel(f"n={n}", rotation=90, size=10)
 plt.suptitle("PCA Reconstructions of Digits")
 plt.tight_layout()
 plt.savefig("outputs/pca_reconstructions.png")

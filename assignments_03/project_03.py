@@ -136,21 +136,21 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 print(f"Training set size: {X_train.shape}\n" f"Testing set size: {X_test.shape}\n")
 
-# You have to scale features because PCA finds directions of maximum variance and features with larger raw values (such as "capital_run_length_total") would dominate without standardization. Fit preprocessing only on the training data to avoid data leakage, while keeping both the full scaled data and the PCA-reduced data because later comparisons evaluate models with and without dimensionality reduction.
+# Standardize the features before PCA because PCA is based on variance. Without scaling, features with much larger numeric ranges would dominate the principal components. The scaler is fit only on the training data, then applied to the test data to prevent data leakage.
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-# PCA is fit only on the scaled training data. The test data is transformed using the fitted PCA model.
+# PCA is fit only on X_train_scaled so that information from the test set is never used when learning the principal components. The fitted PCA transformation is then applied to both the training and testing data.
 pca = PCA()
 pca.fit(X_train_scaled)
 
 cum_var = np.cumsum(pca.explained_variance_ratio_)
 n = int(np.argmax(cum_var >= 0.90)) + 1  # n_components
 
-X_train_pca = pca.transform(X_train_scaled)[:, :n]
-X_test_pca = pca.transform(X_test_scaled)[:, :n]
+X_train_pca = pca.transform(X_train_scaled)
+X_test_pca = pca.transform(X_test_scaled)
 
 plt.figure(figsize=(6, 4))
 plt.plot(cum_var)
@@ -218,8 +218,14 @@ for depth in [3, 5, 10, None]:
     print(
         f"max_depth={depth}: Training Accuracy: {train_acc:.4f}, Testing Accuracy: {test_acc:.4f}"
     )
+# Printed results of Decision Tree Depths
+# max_depth=3: Training Accuracy: 0.8799, Testing Accuracy: 0.8664
+# max_depth=5: Training Accuracy: 0.9223, Testing Accuracy: 0.9001
+# max_depth=10: Training Accuracy: 0.9707, Testing Accuracy: 0.9251
+# max_depth=None: Training Accuracy: 0.9995, Testing Accuracy: 0.9186
 
-# Based on the printed Decision Tree Depth Comparisons, the training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of test accuracy at depth=None (unlimited), which became lower than that at depth=10). depth=10 will be selected because it gave the highest test accuracy while avoiding the stronger overfitting seen with an unrestricted tree, and it is a good balance between training and test performance.
+# The training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of depth=None where Training Accuracy reaches 0.9995 but Testing Accuracy begins drops to 0.9186). These could be a sign of overfitting as the model starts memorizing the training data instead of leaning general patterns.
+# depth=10 will be selected because it gave the highest test accuracy while avoiding the stronger overfitting seen with an unrestricted tree, and it is a good balance between training and test performance.
 CHOSEN_DEPTH = 10
 dt_final = DecisionTreeClassifier(random_state=42, max_depth=CHOSEN_DEPTH)
 dt_final.fit(X_train, y_train)
@@ -314,9 +320,13 @@ cv_models = [
     (f"Decision Tree (depth={CHOSEN_DEPTH})", dt_final, X_train),
     ("Random Forest", rf, X_train),
 ]
+cv_results = []
 for name, model, Xtr in cv_models:
     scores = cross_val_score(model, Xtr, y_train, cv=5)
-    print(f"{name} -- mean={scores.mean():.4f}, std={scores.std():.4f}")
+    cv_results.append((name, scores.mean(), scores.std()))
+print("Cross-Validation Summary")
+for name, mean, std in cv_results:
+    print(f"{name:<35} --  Mean={mean:.4f}, Std={std:.4f}")
 
 # No scaling needed on tree-based models (Decision Tree and Random Forest), and I wrapped models that need preprocessing in a Pipeline so scaler/PCA are re-fit on each fold's training portion only. Through 100 trees, Random Forest has the highest mean CV accuracy and among the lowest standard deviations. A Decision Tree has higher variance across folds, suggesting it is more sensitive to the specific training split and lacks comparable stability to a Random Forest. The ranking generally matches the single train/test split results for each classifier.
 
