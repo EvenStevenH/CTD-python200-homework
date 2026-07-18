@@ -159,16 +159,23 @@ print("pca_2d_projection.png saved.\n")
 
 print("------ PCA Q3")
 cumulative_variance = np.cumsum(pca.explained_variance_ratio_)
+n80 = np.argmax(cumulative_variance >= 0.80) + 1
 plt.figure(figsize=(8, 6))
 plt.plot(range(1, len(cumulative_variance) + 1), cumulative_variance, marker="o")
+plt.axhline(0.80, color="red", linestyle="--", label="80% variance")
+plt.axvline(n80, color="green", linestyle="--", label=f"{n80} components")
 plt.xlabel("Number of Components")
 plt.ylabel("Cumulative Explained Variance")
 plt.title("Explained Variance vs. Number of Components")
+plt.legend()
 plt.grid()
 plt.savefig("outputs/pca_variance_explained.png")
 plt.close()
+print(f"80% explained variance is reached at approximately {n80} components.")
 print("pca_variance_explained.png saved.\n")
-# The 80% variance threshold is reached around n=40 components, as seen in the cumulative explained variance plot.
+# The cumulative explained variance curve reaches the 80% threshold at approximately
+# n = {n80} principal components, so about {n80} components are needed to explain
+# 80% of the variance in the digit dataset.
 
 
 print("------ PCA Q4")
@@ -187,8 +194,9 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
 fig, axes = plt.subplots(len(n_values) + 1, len(sample_indices), figsize=(8, 6))
 for col, idx in enumerate(sample_indices):  # original images (top row)
     axes[0, col].imshow(images[idx], cmap="gray_r")
-    axes[0, col].set_title(f"Original: Digit {y_digits[idx]}")
+    axes[0, col].set_title(f"Digit {y_digits[idx]}")
     axes[0, col].axis("off")
+axes[0, 0].set_ylabel("Original")
 for row, n in enumerate(n_values, start=1):  # reconstructions
     for col, idx in enumerate(sample_indices):
         reconstructed = reconstruct_digit(idx, scores, pca, n)

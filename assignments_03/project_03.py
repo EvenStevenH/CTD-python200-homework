@@ -205,7 +205,9 @@ for name, (model, Xtr, Xte) in models.items():  # doesn't overwrite the datasets
     print(f"{name} -- Accuracy: {accuracy_score(y_test, y_pred):.4f}")
     print(classification_report(y_test, y_pred))
 
-# KNN performs poorly on unscaled data, as distance calculations are dominated by features with large numeric ranges (such as "capital_run_length_total" and "capital_run_length_longest"). After scaling, all features contribute equally to distances and improves KNN accuracy by ~0.10. KNN with PCA slightly outperformed scaled KNN, matching Task 2 because PCA removed redundant dimensions while preserving most of the variance. A linear model like Logistic Regression performed decently with scaled features, but slightly worse with PCA reduction.
+# KNN Comparison: KNN performs poorly on the unscaled data because distance calculations are dominated by features with large numeric ranges. Scaling greatly improves performance because all features contribute more equally. Applying PCA after scaling gives a small additional improvement, suggesting that removing redundant dimensions benefits KNN.
+
+# Logistic Regression Comparison: Logistic Regression performs well on the scaled data, but reducing the features with PCA produces slightly lower accuracy. For this dataset, PCA removes some information that the linear classifier can still use, so the non-PCA version is preferred.
 
 # Random Forest performs the best, likely due to how it combines numerous decision trees and averages their predictions. This reduces variance and increases generalization. For this particular dataset, I would use Random Forest for its higher precision on spam (ham labelled as spam, where it makes fewer false positives than false negatives) to minimize the amount of legitimate emails marked incorrectly as spam. False negatives letting some spam through can be easily dealt with through manual user intervention, which I think is a tolerable compromise.
 
@@ -218,14 +220,11 @@ for depth in [3, 5, 10, None]:
     print(
         f"max_depth={depth}: Training Accuracy: {train_acc:.4f}, Testing Accuracy: {test_acc:.4f}"
     )
-# Printed results of Decision Tree Depths
-# max_depth=3: Training Accuracy: 0.8799, Testing Accuracy: 0.8664
-# max_depth=5: Training Accuracy: 0.9223, Testing Accuracy: 0.9001
-# max_depth=10: Training Accuracy: 0.9707, Testing Accuracy: 0.9251
-# max_depth=None: Training Accuracy: 0.9995, Testing Accuracy: 0.9186
 
 # The training accuracy approaches 1.0 as max_depth increased, but testing accuracy started to drop (as with the case of depth=None where Training Accuracy reaches 0.9995 but Testing Accuracy begins drops to 0.9186). These could be a sign of overfitting as the model starts memorizing the training data instead of leaning general patterns.
-# depth=10 will be selected because it gave the highest test accuracy while avoiding the stronger overfitting seen with an unrestricted tree, and it is a good balance between training and test performance.
+
+# I would choose max_depth=10 for production because it achieved the highest testing accuracy while keeping the gap between training and testing accuracy much smaller than the unrestricted tree. Although depth=None nearly memorizes the training set (99.95% accuracy), its lower testing accuracy indicates overfitting. Depth=10 provides the best balance between model complexity and generalization.
+
 CHOSEN_DEPTH = 10
 dt_final = DecisionTreeClassifier(random_state=42, max_depth=CHOSEN_DEPTH)
 dt_final.fit(X_train, y_train)
@@ -270,7 +269,7 @@ print("Bar chart of Random Forest importances saved.\n")
 # Both decision tree and random forest rank "char_freq_$", "word_freq_remove", and 'char_freq_!' near the top as the most important features. This matches intuition, suggesting that punctuation like dollar signs and exclamation marks tend to be signs of spam.
 
 # ---------------------------------------------------------------------------- #
-print("\n\n------ Task 4: A Classifier Comparison")
+print("\n\n------ Task 4: Cross-Validation")
 
 cv_models = [
     (
@@ -343,7 +342,8 @@ rf_pipeline = Pipeline(  # Random Forest (best tree model)
     [("classifier", RandomForestClassifier(n_estimators=100, random_state=42))]
 )
 
-# Logistic Regression on scaled data > get manual accuracy results
+# Logistic Regression was selected because it achieved the best performance among the non-tree-based models in Task 3. Random Forest was selected because it achieved the highest overall accuracy among the tree-based models.
+
 lr_manual = LogisticRegression(C=1.0, max_iter=1000, solver="liblinear").fit(
     X_train_scaled, y_train
 )
