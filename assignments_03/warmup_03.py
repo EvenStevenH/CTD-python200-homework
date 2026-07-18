@@ -168,7 +168,7 @@ plt.grid()
 plt.savefig("outputs/pca_variance_explained.png")
 plt.close()
 print("pca_variance_explained.png saved.\n")
-# Approximately 40 components are needed to explain 80% of the variance, depending on the exact cumulative sum at that point.
+# The 80% variance threshold is reached around n=40 components, as seen in the cumulative explained variance plot. In other words, approximately 40 components are needed to explain 80% of the variance, depending on the exact cumulative sum at that point.
 
 
 print("------ PCA Q4")
@@ -197,6 +197,7 @@ for row, n in enumerate(n_values, start=1):  # reconstructions
 
         if col == 0:  # reconstruction label only on the first column
             axes[row, col].set_ylabel(f"n={n}", rotation=90, size=10)
+axes[0, 0].set_title("Original")
 plt.suptitle("PCA Reconstructions of Digits")
 plt.tight_layout()
 plt.savefig("outputs/pca_reconstructions.png")
