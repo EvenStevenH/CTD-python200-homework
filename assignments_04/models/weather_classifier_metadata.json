@@ -1,0 +1,18 @@
+{
+    "python_version": "3.14.3 (tags/v3.14.3:323c59a, Feb  3 2026, 16:04:56) [MSC v.1944 64 bit (AMD64)]",
+    "scikit-learn_version": "1.9.0",
+    "feature_names": [
+        "temperature_2m_max",
+        "temperature_2m_min",
+        "precipitation_sum",
+        "wind_speed_10m_max"
+    ],
+    "best_params": {
+        "clf__C": 10
+    },
+    "test_auc": 0.9551020408163265,
+    "city_latitude": 35.68,
+    "city_longitude": 139.75,
+    "label_thresholds_description": "Label 'good for running' if temperature_2m_max is 7-26\u00b0C, temperature_2m_min >= 0\u00b0C, precipitation_sum < 3.0 mm, and wind_speed_10m_max < 30 km/h.",
+    "trained_on": "2024 Open-Meteo, Japan (lat 35.68, lon 139.75)"
+}
