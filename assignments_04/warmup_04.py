@@ -57,7 +57,7 @@ auc_knn = roc_auc_score(y_test, y_probs_knn)
 
 print(f"Logistic Regression AUC: {auc_lr:.4f}\n" f"KNN AUC: {auc_knn:.4f}\n")
 
-# KNN model has higher AUC, meaning it is better at separating the positive and negative classes overall than the logistic regression model, independent of the probability threshold chosen.
+# KNN model has higher AUC (AUC=0.9394), meaning it is better at separating the positive and negative classes overall than the logistic regression model (AUC=0.7060), independent of the probability threshold chosen.
 
 # ---------------------------------------------------------------------------- #
 print("------ ROC Q2")
@@ -104,8 +104,8 @@ for threshold, tpr, fpr in zip(thresh_lr, tpr_lr, fpr_lr):
 
 print(
     f"Best Threshold: {best_threshold:.4f}\n"
-    f"FPR at Optimum: {best_tpr:.4f}\n"
-    f"TPR at Optimum: {best_fpr:.4f}\n"
+    f"FPR at Optimum: {best_fpr:.4f}\n"
+    f"TPR at Optimum: {best_tpr:.4f}\n"
     f"Highest F1 Score: {best_f1:.4f}\n"
 )
 
