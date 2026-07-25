@@ -327,10 +327,13 @@ print("Cross-Validation Summary")
 for name, mean, std in cv_results:
     print(f"{name:<35} --  Mean={mean:.4f}, Std={std:.4f}")
 
-# No scaling needed on tree-based models (Decision Tree and Random Forest), and I wrapped models that need preprocessing in a Pipeline so scaler/PCA are re-fit on each fold's training portion only. Through 100 trees, Random Forest has the highest mean CV accuracy and among the lowest standard deviations. A Decision Tree has higher variance across folds, suggesting it is more sensitive to the specific training split and lacks comparable stability to a Random Forest. The ranking generally matches the single train/test split results for each classifier.
+# No scaling needed on tree-based models (Decision Tree and Random Forest), so raw X_train could be passed directly. I wrapped models that need preprocessing in a Pipeline so scaler/PCA are re-fit on each fold's training portion only. Through 100 trees, Random Forest has the highest mean CV accuracy and among the lowest standard deviations. A Decision Tree has higher variance across folds, suggesting it is more sensitive to the specific training split and lacks comparable stability to a Random Forest. The ranking generally matches the single train/test split results for each classifier.
 
 # ---------------------------------------------------------------------------- #
 print("\n\n------ Task 5: Building a Prediction Pipeline")
+
+# Logistic Regression was selected because it achieved the best performance among the non-tree-based models in Task 3. Random Forest was selected because it achieved the highest overall accuracy among the tree-based models.
+
 
 lr_pipeline = Pipeline(  # Logistic Regression (best non-tree model)
     [
@@ -341,8 +344,6 @@ lr_pipeline = Pipeline(  # Logistic Regression (best non-tree model)
 rf_pipeline = Pipeline(  # Random Forest (best tree model)
     [("classifier", RandomForestClassifier(n_estimators=100, random_state=42))]
 )
-
-# Logistic Regression was selected because it achieved the best performance among the non-tree-based models in Task 3. Random Forest was selected because it achieved the highest overall accuracy among the tree-based models.
 
 lr_manual = LogisticRegression(C=1.0, max_iter=1000, solver="liblinear").fit(
     X_train_scaled, y_train

@@ -114,7 +114,7 @@ print(
 # use "saga", as "liblinear" only supports binary classification
 print("------ Logistic Regression Q1")
 for C in [0.01, 1.0, 100]:
-    model = LogisticRegression(C=C, max_iter=1000, solver="saga")
+    model = LogisticRegression(C=C, max_iter=1000, solver="liblinear")
     model.fit(X_train_scaled, y_train)
     total_coef_magnitude = np.abs(model.coef_).sum()
     print(f"C={C}, Total Coefficient Magnitude: {total_coef_magnitude:.4f}\n")
@@ -194,9 +194,8 @@ def reconstruct_digit(sample_idx, scores, pca, n_components):
 fig, axes = plt.subplots(len(n_values) + 1, len(sample_indices), figsize=(8, 6))
 for col, idx in enumerate(sample_indices):  # original images (top row)
     axes[0, col].imshow(images[idx], cmap="gray_r")
-    axes[0, col].set_title(f"Digit {y_digits[idx]}")
+    axes[0, col].set_title(f"Original Digit {y_digits[idx]}")
     axes[0, col].axis("off")
-axes[0, 0].set_ylabel("Original")
 for row, n in enumerate(n_values, start=1):  # reconstructions
     for col, idx in enumerate(sample_indices):
         reconstructed = reconstruct_digit(idx, scores, pca, n)
