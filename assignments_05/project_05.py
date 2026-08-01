@@ -58,7 +58,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
 
     messages = [{"role": "user", "content": prompt}]
     response_text = get_completion(messages)
-    clean = (
+    clean = (  # clean markdown code
         response_text.strip()
         .removeprefix("```json")
         .removeprefix("```")
@@ -66,12 +66,12 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
         .strip()
     )
     try:
-        improved_bullets = json.loads(clean)  # parse JSON
+        result = json.loads(clean)  # parse JSON
         print("Improved Resume Bullets\n")
-        for bullet in improved_bullets:  # both versions side by side
-            print(f"Original:\n{bullet['original']}\n")
-            print(f"Improved:\n{bullet['improved']}\n")
-        return improved_bullets
+        for bullet in result:  # both versions side by side
+            print(f"Original: {bullet['original']}\n")
+            print(f"Improved: {bullet['improved']}\n")
+        return result
     except json.JSONDecodeError:
         print("Error parsing JSON response.\n" f"Response:\n{clean}\n")
         return []
@@ -164,6 +164,7 @@ for text, expected in mod_tests:
 # Task 5: The Chatbot Loop
 
 
+# Task 5: Chatbot Loop (Fixed)
 def run_chatbot():
     # 1. Initialize conversation history with your system prompt
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
@@ -171,7 +172,7 @@ def run_chatbot():
     print("=" * 50)
     print("Job Application Helper")
     print("=" * 50)
-    print("I can help you with:")
+    print("I can help you with: ")
     print("  1. Rewriting resume bullet points")
     print("  2. Drafting a cover letter opening")
     print("  3. Any other questions about your application")
@@ -210,13 +211,10 @@ def run_chatbot():
 
             if raw_bullets:
                 improved_bullets = rewrite_bullets(raw_bullets)
-                messages.append(
-                    {
-                        "role": "user",
-                        "content": "Rewrite these resume bullets:\n"
-                        + "\n".join(raw_bullets),
-                    }
+                bullets_prompt = "Rewrite these resume bullets:\n" + "\n".join(
+                    raw_bullets
                 )
+                messages.append({"role": "user", "content": bullets_prompt})
                 messages.append({"role": "assistant", "content": str(improved_bullets)})
             else:
                 print("No bullets entered.")
@@ -231,12 +229,8 @@ def run_chatbot():
             if job_title and background:
                 result = generate_cover_letter(job_title, background)
                 print(f"Suggested Cover Letter Opening:\n{result}\n")
-                messages.append(
-                    {
-                        "role": "user",
-                        "content": f"Job Title: {job_title}\nBackground: {background}",
-                    }
-                )
+                cover_prompt = f"Job Title: {job_title}\nBackground: {background}"
+                messages.append({"role": "user", "content": cover_prompt})
                 messages.append({"role": "assistant", "content": result})
             else:
                 print("A job title and your background is needed to write that.")

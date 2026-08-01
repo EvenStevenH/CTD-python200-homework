@@ -226,8 +226,15 @@ print("=== Prompt Q5 — Structured Output ===")
 review = "I've been using this tool for three months. It handles large datasets well, \
 but the UI is clunky and the export options are limited."
 response = get_response(
-    review,
-    sys_message="Analyze this customer review and respond only with valid JSON. Return three keys: sentiment (positive/negative/mixed), confidence (0–1, float), reason (one sentence).",
+    f"""Analyze the review below and return ONLY valid JSON with these exact keys:
+        - "sentiment": one of positive, negative, or mixed
+        - "confidence": a float from 0 to 1
+        - "reason": one sentence explaining the sentiment
+
+        Do not include any text before or after the JSON object.
+
+        Review: {review}
+        """
 )
 print(f"Raw response: {response}\n")
 
