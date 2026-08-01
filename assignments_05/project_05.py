@@ -67,18 +67,15 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
         .strip()
     )
     try:
-        result = json.loads(clean)
-        print("Resume Bullets\n")
-        for item in result:
-            print(f"Original: {item['original']}\n")
-            print(f"Improved: {item['improved']}\n")
-        return result
+        results = json.loads(clean)
     except json.JSONDecodeError:
         print(f"Error parsing JSON response. Raw response:\n{clean}\n")
         return []
     except KeyError:
         print(f"Incorrect JSON key. Raw response: {clean}\n")
         return []
+
+    return results
 
 
 # Weak bullet points tend to use vague/passive verbs, give no metrics or context, and describe activities rather than results. The model helps by swapping them for stronger verbs (ex. "worked" to "collaborated") and reframed tasks as outcomes.
@@ -157,7 +154,7 @@ background = (
     a Python course and built data pipelines using Prefect and Pandas."
 )
 print("Test cover letter:")
-generate_cover_letter(job_title, background)
+print(generate_cover_letter(job_title, background))
 
 mod_tests = [
     ("Can you help me rewrite my resume for a programming intern role?", True),
@@ -222,7 +219,22 @@ def run_chatbot():
                     raw_bullets.append(line)
 
             if raw_bullets:
-                rewrite_bullets(raw_bullets)
+                results = rewrite_bullets(raw_bullets)
+
+                messages.append(
+                    {"role": "user", "content": "Requested resume bullet rewrite."}
+                )
+                assistant_reply = "\n".join(
+                    f"Original: {item['original']}\nImproved: {item['improved']}"
+                    for item in results
+                )
+                messages.append({"role": "assistant", "content": assistant_reply})
+
+                print("Resume Bullets\n")
+                for item in results:
+                    print(f"Original : {item['original']}")
+                    print(f"Improved: {item['improved']}")
+                    print("-" * 60)
             else:
                 print("No bullets entered.")
 
@@ -234,7 +246,21 @@ def run_chatbot():
             ).strip()
 
             if job_title and background:
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": (
+                            f"Requested a cover letter.\n"
+                            f"Job title: {job_title}\n"
+                            f"Background: {background}"
+                        ),
+                    }
+                )
+
                 result = generate_cover_letter(job_title, background)
+
+                messages.append({"role": "assistant", "content": result})
+
                 print(f"Suggested Cover Letter Opening:\n{result}\n")
                 print("(Review and personalize this before usage!)\n")
             else:
