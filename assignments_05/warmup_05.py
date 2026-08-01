@@ -91,7 +91,7 @@ print(f"Prompt: '{prompt}'\n" f"Response: {response.choices[0].message.content}\
 # The response is cut off at 15 tokens, rendering it incomplete. I would use `max_tokens` in real applications to control costs, speed up inference, and prevent excessive generation.
 
 # ---------------------------------------------------------------------------- #
-# --- System Messages and Personas ---
+# System Messages and Personas
 print("=== System Q1 ===")
 
 messages = [
@@ -134,7 +134,7 @@ print(f"System Question 2 response: {response.choices[0].message.content}\n")
 # The Chat Completions API is stateless. The model still knows Jordan's name because messages included previous responses that has Jordan's name in them, thus providing context.
 
 # ---------------------------------------------------------------------------- #
-# --- Prompt Engineering ---
+# Prompt Engineering
 print("=== Prompt Q1 — Zero-Shot ===")
 
 reviews = [
@@ -145,7 +145,7 @@ reviews = [
 for i, review in enumerate(reviews):
     response = get_response(
         review,
-        sys_message="""Classify this sentence as positive, negative or mixed.""",
+        sys_message=f"""Classify the sentiment of this review as positive, negative, or mixed.""",
     )
     print(f"Review {i + 1}: {response}")
 
@@ -159,8 +159,11 @@ example = """
         """
 for i, review in enumerate(reviews):
     response = get_response(
-        example + review,
-        sys_message="""Classify this sentence as positive, negative or mixed.""",
+        review,
+        sys_message=f"""
+            Classify the sentiment of this review as positive, negative, or mixed.
+            {example}
+            """,
     )
     print(f"Review {i + 1}: {response}")
 
@@ -186,7 +189,10 @@ example = """
 for i, review in enumerate(reviews):
     response = get_response(
         example + review,
-        sys_message="""Classify this sentence as positive, negative or mixed.""",
+        sys_message=f"""
+            Classify the sentiment of this review as positive, negative, or mixed.
+            {example}
+            """,
     )
     print(f"Review {i + 1}: {response}")
 
@@ -215,7 +221,7 @@ review = "I've been using this tool for three months. It handles large datasets 
 but the UI is clunky and the export options are limited."
 response = get_response(
     review,
-    sys_message="Analyze this customer review and respond only with valid JSON. Return three keys: sentiment (positive/negative/mixed), confidence (0–1, float), brief_reason (one sentence).",
+    sys_message="Analyze this customer review and respond only with valid JSON. Return three keys: sentiment (positive/negative/mixed), confidence (0–1, float), reason (one sentence).",
 )
 print(f"Raw response: {response}\n")
 
@@ -224,7 +230,7 @@ try:
     print(
         f"Sentiment: {response_json['sentiment']}\n"
         f"Confidence: {response_json['confidence']}\n"
-        f"Reason: {response_json['brief_reason']}\n"
+        f"Reason: {response_json['reason']}\n"
     )
 except json.JSONDecodeError:
     print(f"Not a valid JSON format. Raw response: {response}\n")

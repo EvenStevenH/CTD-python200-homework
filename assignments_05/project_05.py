@@ -20,25 +20,18 @@ def get_completion(messages, model="gpt-4o-mini", temperature=0.7):
 
 # I specifically ask the system to use strong action verbs and results-oriented language in order to help the user stand out more to recruiters and people who are reviewing the materials. I also gave them a specific role and specific user to keep responses focused and to avoid tangents.
 SYSTEM_PROMPT = """
-    You are a professional resume coach and career changer mentor. Your goal is to help users improve their job application materials by providing specific, actionable feedback.
+    You are a professional job application coach.
+
+    Your job is to help users improve resume bullet points, write cover letter openings,
+    and answer questions about job applications.
 
     Constraints:
-    - Focus only on resume bullet points and cover letter content
-    - Always remind users to review and edit your output before submitting
-    - Acknowledge that you may not know the user's specific industry norms
-    - Be specific in your improvements rather than just rearranging words
-    - Use strong action verbs and results-oriented language
-
-    For resumes, emphasize:
-    - Specificity: Include metrics or concrete examples when possible
-    - Results orientation: Focus on outcomes rather than just duties
-    - Industry-specific terminology: Research the target industry to use appropriate terms
-    - Strong action verbs: Replace generic verbs with powerful alternatives
-
-    For cover letters, encourage users to:
-    - Connect their background to the job requirements
-    - Show enthusiasm for the specific company and role
-    - Address any potential concerns the employer might have
+    - Give specific, actionable advice.
+    - Stay focused on resumes, cover letters, interviews, and job applications.
+    - Do not invent qualifications or experience.
+    - Encourage users to review and personalize all generated content before submitting.
+    - Acknowledge that industry expectations may vary.
+    - Use concise, professional language.
     """
 
 
@@ -75,8 +68,8 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     try:
         improved_bullets = json.loads(clean)  # parse JSON
         for bullet in improved_bullets:  # both versions side by side
-            print(f"Original: {bullet['original']}")
-            print(f"Improved: {bullet['improved']}\n")
+            print(f"Original:\n{bullet['original']}\n")
+            print(f"Improved:\n{bullet['improved']}\n")
         return improved_bullets
     except json.JSONDecodeError:
         print("Error parsing JSON response.\n" f"Response:\n{clean}\n")
@@ -214,10 +207,16 @@ def run_chatbot():
                 if line:
                     raw_bullets.append(line)
 
-            if raw_bullets:  # add to conversation history
+            if raw_bullets:
                 improved_bullets = rewrite_bullets(raw_bullets)
+                print("Improved Resume Bullets\n")
+                for bullet in improved_bullets:
+                    print(f"Original : {bullet['original']}\n")
+                    print(f"Improved: {bullet['improved']}\n")
                 messages.append({"role": "user", "content": "\n".join(raw_bullets)})
                 messages.append({"role": "assistant", "content": str(improved_bullets)})
+            else:
+                print("No bullets entered.")
 
         # 6. Check if the user wants a cover letter
         elif "cover letter" in user_input.lower():
@@ -226,8 +225,9 @@ def run_chatbot():
                 "Job Application Helper: Briefly describe your background: "
             ).strip()
 
-            if job_title and background:  # add to conversation history
+            if job_title and background:
                 opening_paragraph = generate_cover_letter(job_title, background)
+                print(f"Suggested Cover Letter Opening:\n{opening_paragraph}\n")
                 messages.append(
                     {
                         "role": "user",
@@ -239,7 +239,7 @@ def run_chatbot():
         # 7. Otherwise, handle it as a regular chat turn
         else:
             messages.append({"role": "user", "content": user_input})
-            try:  # add to conversation history
+            try:
                 reply = get_completion(messages)
                 print(f"Job Application Helper: {reply}\n")
                 messages.append({"role": "assistant", "content": reply})
