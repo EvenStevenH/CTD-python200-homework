@@ -315,11 +315,10 @@ text for tasks such as writing, translation, and content creation."""
 # accuracy over time. It can comprehend complex contexts and produce coherent
 # text for tasks such as writing, translation, and content creation.
 
-response = get_response(prompt)
-openai_output = response.choices[0].message.content
+openai_output = get_response(prompt)
 
 print(f"Ollama output:\n{ollama_output}\n")
-print(f"OpenAI output:\n{openai_output}\n")
+print(f"OpenAI response:\n{openai_output}\n")
 
 
 # Both Ollama's and OpenAI's responses are very similar, with Ollama's having a more broader explanation and using less technical terms (like "machine learning"). The main advantage of running a model locally is more privacy, offline access, and your data not being used for unauthorized training. Disadvantages of local models include being potentially out of date (as their training data may only contain knowledge up to a certain date) and unable to search the internet for additional/new information.

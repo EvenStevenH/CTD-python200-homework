@@ -69,7 +69,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     try:
         results = json.loads(clean)
         print("\nRewritten Bullet Points:")
-        for item in result:
+        for item in results:
             print(f"  Original:  {item['original']}")
             print(f"  Improved:  {item['improved']}")
 
@@ -224,13 +224,17 @@ def run_chatbot():
 
             if raw_bullets:
                 results = rewrite_bullets(raw_bullets)
-                messages.append({"role": "assistant", "content": results})
+                bullet_summary = "\n".join(
+                    f"Original : {item['original']}\nImproved   : {item['improved']}"
+                    for item in results
+                )
+                messages.append({"role": "assistant", "content": bullet_summary})
 
                 print("Resume Bullets\n")
                 for item in results:
-                    print(f"Original : {item['original']}")
-                    print(f"Improved: {item['improved']}")
-                    print("-" * 60)
+                    print(
+                        f"Original: {item['original']}" f"Improved: {item['improved']}"
+                    )
             else:
                 print("No bullets entered.")
 
@@ -274,6 +278,6 @@ if __name__ == "__main__":
 
 # ---------------------------------------------------------------------------- #
 # Task 6: Ethics Reflection
-# Option A — Comment block
+# Format chosen: Option A (comment block)
 
 # The bot was trained on text leaning towards English-speaking, Western professional culture, which could produce biased advice that favors certain communication styles, industries, or cultural backgrounds that may not always be appropriate. For example, the model might favor specific action verbs, phrases, or terms that are more common in the American tech industry, as prompt examples were tech-based roles. If a job-seeker submits the bot's output directly without reviewing it, they might include inaccurate information, miss important details about their actual experience, or be unable to fully explain it. The bot's suggestions should be treated as starting points that require human review and customization. One guardrail I would add is a reminder for users to review and edit the produced content before submitting it anywhere. Another would be to implement a disclaimer that the advice is not guaranteed to be accurate or appropriate for all situations, and that users should use their own judgment when applying suggestions.
