@@ -144,8 +144,9 @@ reviews = [
 ]
 for i, review in enumerate(reviews):
     response = get_response(
-        review,
-        sys_message=f"""Classify the sentiment of this review as positive, negative, or mixed.""",
+        f"""Review: "{review}"
+
+        Classify the sentiment of this review as positive, negative, or mixed.""",
     )
     print(f"Review {i + 1}: {response}")
 
@@ -158,13 +159,17 @@ example = """
         Sentiment: mixed
         """
 for i, review in enumerate(reviews):
-    response = get_response(
-        review,
-        sys_message=f"""
-            Classify the sentiment of this review as positive, negative, or mixed.
-            {example}
-            """,
-    )
+    prompt = f"""
+        Example:
+        Review: "Fast shipping but the item arrived damaged."
+        Sentiment: mixed
+
+        Classify the sentiment of this review as positive, negative, or mixed.
+
+        Review: "{review}"
+        Sentiment:
+        """
+    response = get_response(prompt)
     print(f"Review {i + 1}: {response}")
 
 # By adding an example, the model was able to respond in the same format as the example for each review (a "Sentiment" label and a value in lowercase).
@@ -187,13 +192,14 @@ example = """
 
         """
 for i, review in enumerate(reviews):
-    response = get_response(
-        example + review,
-        sys_message=f"""
-            Classify the sentiment of this review as positive, negative, or mixed.
-            {example}
-            """,
-    )
+    prompt = f"""
+        Classify the sentiment of this review as positive, negative, or mixed.
+        {example}
+
+        Review: "{review}"
+        Sentiment:
+        """
+    response = get_response(prompt)
     print(f"Review {i + 1}: {response}")
 
 # For zero-shot, the model only uses pre-trained data to guess the output and format you wanted. One-shot and few-shot prompts provide examples to the model to reference, allow the model to recognize patterns and handle the task more reliably. As such, I would use zero-shot for completing simple tasks fast (like math), and one-shot or few-shot when when the task is nuanced or I need a specific output format.
@@ -271,8 +277,19 @@ prompt = "Explain what a large language model is in two sentences."
 response = get_response(prompt)
 print(f"OpenAI response: {response}\n")
 
-# Ollama's response: "A large language model is an AI system designed to understand and generate human language, trained on vast datasets to learn patterns and improve accuracy over time. It can comprehend complex contexts, understand context, and produce coherent text, making it versatile for tasks like writing, translation, and content creation."
+"""
+Ollama output:
 
-# OpenAI response: "A large language model is an advanced artificial intelligence system designed to understand and generate human language by analyzing vast amounts of text data. It uses machine learning techniques, particularly deep learning, to predict and produce coherent and contextually relevant text based on the input it receives."
+A large language model is an AI system designed to understand and generate
+human language, trained on vast datasets to learn patterns and improve
+accuracy over time. It can comprehend complex contexts and produce coherent
+text for tasks such as writing, translation, and content creation.
+"""
+
+"""
+OpenAI output:
+
+A large language model is an advanced artificial intelligence system designed to understand and generate human language by analyzing vast amounts of text data. It uses machine learning techniques, particularly deep learning, to predict and produce coherent and contextually relevant text based on the input it receives.
+"""
 
 # Both Ollama's and OpenAI's responses are very similar, with Ollama's having a more broader explanation and using less technical terms (like "machine learning"). I think the main advantage of running a model locally is more privacy, offline access, and your data not being used for unauthorized training. Conversely, local models do not update (their training data may only contain knowledge up to a certain date) and cannot search the internet for additional information.

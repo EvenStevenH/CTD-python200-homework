@@ -67,6 +67,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     )
     try:
         improved_bullets = json.loads(clean)  # parse JSON
+        print("Improved Resume Bullets\n")
         for bullet in improved_bullets:  # both versions side by side
             print(f"Original:\n{bullet['original']}\n")
             print(f"Improved:\n{bullet['improved']}\n")
@@ -208,13 +209,7 @@ def run_chatbot():
                     raw_bullets.append(line)
 
             if raw_bullets:
-                improved_bullets = rewrite_bullets(raw_bullets)
-                print("Improved Resume Bullets\n")
-                for bullet in improved_bullets:
-                    print(f"Original : {bullet['original']}\n")
-                    print(f"Improved: {bullet['improved']}\n")
-                messages.append({"role": "user", "content": "\n".join(raw_bullets)})
-                messages.append({"role": "assistant", "content": str(improved_bullets)})
+                rewrite_bullets(raw_bullets)
             else:
                 print("No bullets entered.")
 
@@ -226,32 +221,24 @@ def run_chatbot():
             ).strip()
 
             if job_title and background:
-                opening_paragraph = generate_cover_letter(job_title, background)
-                print(f"Suggested Cover Letter Opening:\n{opening_paragraph}\n")
-                messages.append(
-                    {
-                        "role": "user",
-                        "content": f"Job Title: {job_title}\nBackground: {background}",
-                    }
-                )
-                messages.append({"role": "assistant", "content": opening_paragraph})
+                result = generate_cover_letter(job_title, background)
+                print(f"Suggested Cover Letter Opening:\n{result}\n")
+            else:
+                print("A job title and your background is needed to write that.")
 
         # 7. Otherwise, handle it as a regular chat turn
         else:
             messages.append({"role": "user", "content": user_input})
-            try:
-                reply = get_completion(messages)
-                print(f"Job Application Helper: {reply}\n")
-                messages.append({"role": "assistant", "content": reply})
-            except Exception as e:
-                print(f"Error getting completion: {e}")
+            reply = get_completion(messages)
+            print(f"Job Application Helper: {reply}\n")
+            messages.append({"role": "assistant", "content": reply})
 
 
 if __name__ == "__main__":
     run_chatbot()
 
 # ---------------------------------------------------------------------------- #
-# Task 6: Ethics Reflection
+# Task 6: Ethics Reflection (Option A — Comment block)
 
 # The bot was trained on text written by and about certain kinds of people. This could produce biased advice that favors certain communication styles, industries, or cultural backgrounds. For example, the model might favor specific action verbs, phrases, or terms that are more common in the tech industry, as prompt examples were tech-based roles.
 
