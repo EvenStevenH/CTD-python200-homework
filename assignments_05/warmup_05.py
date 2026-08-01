@@ -18,6 +18,7 @@ def get_response(message, sys_message=None):
 
 # The Chat Completions API
 # ---------------------------------------------------------------------------- #
+# API Q1
 print("=== API Q1 ===")
 
 response = client.chat.completions.create(
@@ -38,6 +39,7 @@ print(
 )
 
 # ---------------------------------------------------------------------------- #
+# API Q2
 print("=== API Q2 ===")
 
 prompt = "Suggest a creative name for a data engineering consultancy."
@@ -61,6 +63,7 @@ for temp in temperatures:
 # The output for temperature=0 is almost always the same ("DataForge Solutions"). The output for temperature=0.7 and temperature=1.5 varies more ("Data Catalyst Collective", for instance),  sometimes returning a list of ideas or including reasoning in the response. For more consistent, reproducible outputs, I would use temperature=0.
 
 # ---------------------------------------------------------------------------- #
+# API Q3
 print("=== API Q3 ===")
 
 response = client.chat.completions.create(
@@ -78,6 +81,7 @@ for i, choice in enumerate(response.choices):
     print(f"Response {i + 1}:\n" f"{choice.message.content}\n")
 
 # ---------------------------------------------------------------------------- #
+# API Q4
 print("=== API Q4 ===")
 
 prompt = "Explain how neural networks work."
@@ -92,6 +96,7 @@ print(f"Prompt: '{prompt}'\n" f"Response: {response.choices[0].message.content}\
 
 # ---------------------------------------------------------------------------- #
 # System Messages and Personas
+# System Q1
 print("=== System Q1 ===")
 
 messages = [
@@ -117,6 +122,7 @@ print(f"Response 2: {response.choices[0].message.content} \n")
 # While maintaining the system's role as a Python teacher, the personality and response tone is drastically different. The first response is more clear and encouraging, while the second speaks like a pirate and is not overly focused on helping the user. Both still offers an example of list comprehension in Python.
 
 # ---------------------------------------------------------------------------- #
+# System Q2
 print("=== System Q2 ===")
 
 messages = [
@@ -131,10 +137,12 @@ messages = [
 response = client.chat.completions.create(model="gpt-4o-mini", messages=messages)
 print(f"System Question 2 response: {response.choices[0].message.content}\n")
 
-# The Chat Completions API is stateless. The model still knows Jordan's name because messages included previous responses that has Jordan's name in them, thus providing context.
+# Minding that the Chat Completions API is stateless, the model still knows Jordan's name because I passed the earlier messages (that include Jordan's name) in the same request.
 
 # ---------------------------------------------------------------------------- #
 # Prompt Engineering
+
+# Prompt Q1 — Zero-Shot
 print("=== Prompt Q1 — Zero-Shot ===")
 
 reviews = [
@@ -151,6 +159,7 @@ for i, review in enumerate(reviews):
     print(f"Review {i + 1}: {response}")
 
 # ---------------------------------------------------------------------------- #
+# Prompt Q2 — One-Shot
 print("\n=== Prompt Q2 — One-Shot ===")
 
 example = """
@@ -175,6 +184,7 @@ for i, review in enumerate(reviews):
 # By adding an example, the model was able to respond in the same format as the example for each review (a "Sentiment" label and a value in lowercase).
 
 # ---------------------------------------------------------------------------- #
+# Prompt Q3 — Few-Shot
 print("\n=== Prompt Q3 — Few-Shot ===")
 
 example = """
@@ -205,6 +215,7 @@ for i, review in enumerate(reviews):
 # For zero-shot, the model only uses pre-trained data to guess the output and format you wanted. One-shot and few-shot prompts provide examples to the model to reference, allow the model to recognize patterns and handle the task more reliably. As such, I would use zero-shot for completing simple tasks fast (like math), and one-shot or few-shot when when the task is nuanced or I need a specific output format.
 
 # ---------------------------------------------------------------------------- #
+# Prompt Q4 — Chain of Thought
 print("\n=== Prompt Q4 — Chain of Thought ===")
 
 prompt = f"""
@@ -221,6 +232,7 @@ print(f"Response: {response}\n")
 # Asking the model to break down the problem into smaller, individual predictions tend to improve accuracy and reduce model hallucination.
 
 # ---------------------------------------------------------------------------- #
+# Prompt Q5 — Structured Output
 print("=== Prompt Q5 — Structured Output ===")
 
 review = "I've been using this tool for three months. It handles large datasets well, \
@@ -251,6 +263,7 @@ except KeyError:
     print(f"Incorrect JSON key. Raw response: {response}\n")
 
 # ---------------------------------------------------------------------------- #
+# Prompt Q6 — Delimiters
 print("=== Prompt Q6 — Delimiters ===")
 
 user_text = "First boil a pot of water. Once boiling, add a handful of salt and the \
@@ -278,6 +291,8 @@ print(f"Response 2:\n{response}\n")  # returns "No steps provided."
 
 # ---------------------------------------------------------------------------- #
 # Local Models with Ollama
+
+# Ollama Q1
 print("=== Ollama Q1 ===")
 
 # ollama run qwen3:0.6b "Explain what a large language model is in two sentences."

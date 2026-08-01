@@ -18,7 +18,6 @@ def get_completion(messages, model="gpt-4o-mini", temperature=0.7):
     return response.choices[0].message.content
 
 
-# I specifically ask the system to use strong action verbs and results-oriented language in order to help the user stand out more to recruiters and people who are reviewing the materials. I also gave them a specific role and specific user to keep responses focused and to avoid tangents.
 SYSTEM_PROMPT = """
     You are a professional job application coach.
 
@@ -33,6 +32,8 @@ SYSTEM_PROMPT = """
     - Acknowledge that industry expectations may vary.
     - Use concise, professional language.
     """
+
+# I deliberately included the constraints reminding users to review and personalize all generated content and acknowledging that industry expectations vary. These instructions encourage users to use the assistant's suggestions as a starting point rather than treating them as final answers.
 
 
 # ---------------------------------------------------------------------------- #
@@ -66,24 +67,19 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
         .strip()
     )
     try:
-        result = json.loads(clean)  # parse JSON
-        print("Improved Resume Bullets\n")
-        for bullet in result:  # both versions side by side
-            print(f"Original: {bullet['original']}\n")
-            print(f"Improved: {bullet['improved']}\n")
+        result = json.loads(clean)
+        print("Resume Bullets\n")
+        for item in result:
+            print(f"Original: {item['original']}\n")
+            print(f"Improved: {item['improved']}\n")
         return result
     except json.JSONDecodeError:
-        print("Error parsing JSON response.\n" f"Response:\n{clean}\n")
+        print(f"Error parsing JSON response. Raw response:\n{clean}\n")
+        return []
+    except KeyError:
+        print(f"Incorrect JSON key. Raw response: {clean}\n")
         return []
 
-
-bullets = [
-    "Helped customers with their problems",
-    "Made reports for the management team",
-    "Worked with a team to finish the project on time",
-]
-print("Test starter bullets:")
-rewrite_bullets(bullets)
 
 # ---------------------------------------------------------------------------- #
 # Task 3: Cover Letter Generator
@@ -123,17 +119,8 @@ def generate_cover_letter(job_title: str, background: str) -> str:
 
     messages = [{"role": "user", "content": prompt}]
     response_text = get_completion(messages)
-    print(f"Generated cover letter opening:\n{response_text}\n")
     return response_text
 
-
-job_title = "Junior Data Engineer"
-background = (
-    "Five years of experience as a middle school math teacher; recently completed \
-a Python course and built data pipelines using Prefect and Pandas."
-)
-print("Test cover letter:")
-generate_cover_letter(job_title, background)
 
 # ---------------------------------------------------------------------------- #
 # Task 4: Moderation Check
@@ -147,18 +134,6 @@ def is_safe(text: str) -> bool:
         return False
     return True
 
-
-mod_tests = [
-    ("Can you help me rewrite my resume for a programming intern role?", True),
-    (
-        "I want to defenestrate my interviewer for asking about my greatest weakness.",
-        False,
-    ),
-]
-print("Test moderation check:")
-for text, expected in mod_tests:
-    result = is_safe(text)
-    print(f"Test passed: {result == expected}\n")
 
 # ---------------------------------------------------------------------------- #
 # Task 5: The Chatbot Loop
@@ -210,12 +185,7 @@ def run_chatbot():
                     raw_bullets.append(line)
 
             if raw_bullets:
-                improved_bullets = rewrite_bullets(raw_bullets)
-                bullets_prompt = "Rewrite these resume bullets:\n" + "\n".join(
-                    raw_bullets
-                )
-                messages.append({"role": "user", "content": bullets_prompt})
-                messages.append({"role": "assistant", "content": str(improved_bullets)})
+                rewrite_bullets(raw_bullets)
             else:
                 print("No bullets entered.")
 
@@ -229,9 +199,7 @@ def run_chatbot():
             if job_title and background:
                 result = generate_cover_letter(job_title, background)
                 print(f"Suggested Cover Letter Opening:\n{result}\n")
-                cover_prompt = f"Job Title: {job_title}\nBackground: {background}"
-                messages.append({"role": "user", "content": cover_prompt})
-                messages.append({"role": "assistant", "content": result})
+                print("(Review and personalize this before usage!)\n")
             else:
                 print("A job title and your background is needed to write that.")
 
@@ -244,6 +212,34 @@ def run_chatbot():
 
 
 if __name__ == "__main__":
+    bullets = [
+        "Helped customers with their problems",
+        "Made reports for the management team",
+        "Worked with a team to finish the project on time",
+    ]
+    print("Test starter bullets:")
+    rewrite_bullets(bullets)
+
+    job_title = "Junior Data Engineer"
+    background = (
+        "Five years of experience as a middle school math teacher; recently completed \
+        a Python course and built data pipelines using Prefect and Pandas."
+    )
+    print("Test cover letter:")
+    generate_cover_letter(job_title, background)
+
+    mod_tests = [
+        ("Can you help me rewrite my resume for a programming intern role?", True),
+        (
+            "I want to defenestrate my interviewer for asking about my greatest weakness.",
+            False,
+        ),
+    ]
+    print("Test moderation check:")
+    for text, expected in mod_tests:
+        result = is_safe(text)
+        print(f"Test passed: {result == expected}\n")
+
     run_chatbot()
 
 # ---------------------------------------------------------------------------- #
