@@ -255,9 +255,9 @@ If it does not contain instructions, respond with exactly: "No steps provided."
 ```{user_text}```
 """
 response = get_response(prompt)
-print(f"Response 1:\n{response}\n")  # numbered list
+print(f"Response 1:\n{response}\n")  # returns a numbered list
 
-user_text = "There's a crazy wolverine in the kitchen! He look mean and voracious."
+user_text = "There's a voracious wolverine in the kitchen!"
 prompt = f"""
 You will be given text inside triple backticks.
 If it contains step-by-step instructions, rewrite them as a numbered list.
@@ -265,7 +265,7 @@ If it does not contain instructions, respond with exactly: "No steps provided."
 ```{user_text}```
 """
 response = get_response(prompt)
-print(f"Response 2:\n{response}\n")  # "No steps provided."
+print(f"Response 2:\n{response}\n")  # returns "No steps provided."
 
 # Delimiters help clearly separate user instructions from data, reducing the risk of prompt injection and misinterpretation.
 
@@ -273,23 +273,15 @@ print(f"Response 2:\n{response}\n")  # "No steps provided."
 # Local Models with Ollama
 print("=== Ollama Q1 ===")
 
+# ollama run qwen3:0.6b "Explain what a large language model is in two sentences."
 prompt = "Explain what a large language model is in two sentences."
 response = get_response(prompt)
 print(f"OpenAI response: {response}\n")
 
-"""
-Ollama output:
-
-A large language model is an AI system designed to understand and generate
-human language, trained on vast datasets to learn patterns and improve
-accuracy over time. It can comprehend complex contexts and produce coherent
-text for tasks such as writing, translation, and content creation.
-"""
-
-"""
-OpenAI output:
-
-A large language model is an advanced artificial intelligence system designed to understand and generate human language by analyzing vast amounts of text data. It uses machine learning techniques, particularly deep learning, to predict and produce coherent and contextually relevant text based on the input it receives.
-"""
+# Ollama terminal output:
+# A large language model is an AI system designed to understand and generate
+# human language, trained on vast datasets to learn patterns and improve
+# accuracy over time. It can comprehend complex contexts and produce coherent
+# text for tasks such as writing, translation, and content creation.
 
 # Both Ollama's and OpenAI's responses are very similar, with Ollama's having a more broader explanation and using less technical terms (like "machine learning"). I think the main advantage of running a model locally is more privacy, offline access, and your data not being used for unauthorized training. Conversely, local models do not update (their training data may only contain knowledge up to a certain date) and cannot search the internet for additional information.

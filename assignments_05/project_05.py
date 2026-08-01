@@ -209,7 +209,15 @@ def run_chatbot():
                     raw_bullets.append(line)
 
             if raw_bullets:
-                rewrite_bullets(raw_bullets)
+                improved_bullets = rewrite_bullets(raw_bullets)
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": "Rewrite these resume bullets:\n"
+                        + "\n".join(raw_bullets),
+                    }
+                )
+                messages.append({"role": "assistant", "content": str(improved_bullets)})
             else:
                 print("No bullets entered.")
 
@@ -223,6 +231,13 @@ def run_chatbot():
             if job_title and background:
                 result = generate_cover_letter(job_title, background)
                 print(f"Suggested Cover Letter Opening:\n{result}\n")
+                messages.append(
+                    {
+                        "role": "user",
+                        "content": f"Job Title: {job_title}\nBackground: {background}",
+                    }
+                )
+                messages.append({"role": "assistant", "content": result})
             else:
                 print("A job title and your background is needed to write that.")
 
@@ -240,7 +255,7 @@ if __name__ == "__main__":
 # ---------------------------------------------------------------------------- #
 # Task 6: Ethics Reflection (Option A — Comment block)
 
-# The bot was trained on text written by and about certain kinds of people. This could produce biased advice that favors certain communication styles, industries, or cultural backgrounds. For example, the model might favor specific action verbs, phrases, or terms that are more common in the tech industry, as prompt examples were tech-based roles.
+# The bot was trained on text leaning towards English-speaking, Western professional culture. This could produce biased advice that favors certain communication styles, industries, or cultural backgrounds that may not always be appropriate. For example, the model might favor specific action verbs, phrases, or terms that are more common in the American tech industry, as prompt examples were tech-based roles.
 
 # If a job-seeker submits the bot's output directly without reviewing it, they might include inaccurate information, miss important details about their actual experience, or be unable to fully explain it. The bot's suggestions should be treated as starting points that require human review and customization.
 
