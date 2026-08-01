@@ -68,13 +68,17 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
     )
     try:
         results = json.loads(clean)
+        print("\nRewritten Bullet Points:")
+        for item in result:
+            print(f"  Original:  {item['original']}")
+            print(f"  Improved:  {item['improved']}")
+
     except json.JSONDecodeError:
         print(f"Error parsing JSON response. Raw response:\n{clean}\n")
         return []
     except KeyError:
         print(f"Incorrect JSON key. Raw response: {clean}\n")
         return []
-
     return results
 
 
@@ -220,15 +224,7 @@ def run_chatbot():
 
             if raw_bullets:
                 results = rewrite_bullets(raw_bullets)
-
-                messages.append(
-                    {"role": "user", "content": "Requested resume bullet rewrite."}
-                )
-                assistant_reply = "\n".join(
-                    f"Original: {item['original']}\nImproved: {item['improved']}"
-                    for item in results
-                )
-                messages.append({"role": "assistant", "content": assistant_reply})
+                messages.append({"role": "assistant", "content": results})
 
                 print("Resume Bullets\n")
                 for item in results:
@@ -258,7 +254,6 @@ def run_chatbot():
                 )
 
                 result = generate_cover_letter(job_title, background)
-
                 messages.append({"role": "assistant", "content": result})
 
                 print(f"Suggested Cover Letter Opening:\n{result}\n")
