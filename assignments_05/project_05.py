@@ -222,6 +222,8 @@ def run_chatbot():
                 if line:
                     raw_bullets.append(line)
 
+            messages.append({"role": "user", "content": user_input})
+
             if raw_bullets:
                 results = rewrite_bullets(raw_bullets)
                 bullet_summary = "\n".join(
