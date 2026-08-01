@@ -229,12 +229,6 @@ def run_chatbot():
                     for item in results
                 )
                 messages.append({"role": "assistant", "content": bullet_summary})
-
-                print("Resume Bullets\n")
-                for item in results:
-                    print(
-                        f"Original: {item['original']}" f"Improved: {item['improved']}"
-                    )
             else:
                 print("No bullets entered.")
 

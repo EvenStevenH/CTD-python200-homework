@@ -19,8 +19,6 @@ def get_response(message, sys_message=None):
 # The Chat Completions API
 # ---------------------------------------------------------------------------- #
 # API Q1
-print("=== API Q1 ===")
-
 response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
@@ -40,7 +38,6 @@ print(
 
 # ---------------------------------------------------------------------------- #
 # API Q2
-print("=== API Q2 ===")
 
 prompt = "Suggest a creative name for a data engineering consultancy."
 temperatures = [0, 0.7, 1.5]
@@ -64,8 +61,6 @@ for temp in temperatures:
 
 # ---------------------------------------------------------------------------- #
 # API Q3
-print("=== API Q3 ===")
-
 response = client.chat.completions.create(
     model="gpt-4o-mini",
     messages=[
@@ -82,8 +77,6 @@ for i, choice in enumerate(response.choices):
 
 # ---------------------------------------------------------------------------- #
 # API Q4
-print("=== API Q4 ===")
-
 prompt = "Explain how neural networks work."
 response = client.chat.completions.create(
     model="gpt-4o-mini",
@@ -97,8 +90,6 @@ print(f"Prompt: '{prompt}'\n" f"Response: {response.choices[0].message.content}\
 # ---------------------------------------------------------------------------- #
 # System Messages and Personas
 # System Q1
-print("=== System Q1 ===")
-
 messages = [
     {
         "role": "system",
@@ -123,8 +114,6 @@ print(f"Response 2: {response.choices[0].message.content} \n")
 
 # ---------------------------------------------------------------------------- #
 # System Q2
-print("=== System Q2 ===")
-
 messages = [
     {"role": "system", "content": "You are a helpful assistant."},
     {"role": "user", "content": "My name is Jordan and I'm learning Python."},
@@ -143,8 +132,6 @@ print(f"System Question 2 response: {response.choices[0].message.content}\n")
 # Prompt Engineering
 
 # Prompt Q1 — Zero-Shot
-print("=== Prompt Q1 — Zero-Shot ===")
-
 reviews = [
     "The onboarding process was smooth and the team was welcoming.",
     "The software crashes constantly and support never responds.",
@@ -160,8 +147,6 @@ for i, review in enumerate(reviews):
 
 # ---------------------------------------------------------------------------- #
 # Prompt Q2 — One-Shot
-print("\n=== Prompt Q2 — One-Shot ===")
-
 example = """
         Example:
         Review: "Fast shipping but the item arrived damaged."
@@ -185,8 +170,6 @@ for i, review in enumerate(reviews):
 
 # ---------------------------------------------------------------------------- #
 # Prompt Q3 — Few-Shot
-print("\n=== Prompt Q3 — Few-Shot ===")
-
 example = """
         Example 1:
         Review: "The order was received two days early, and the high quality was exactly as expected."
@@ -216,8 +199,6 @@ for i, review in enumerate(reviews):
 
 # ---------------------------------------------------------------------------- #
 # Prompt Q4 — Chain of Thought
-print("\n=== Prompt Q4 — Chain of Thought ===")
-
 prompt = f"""
     A data engineer earns $85,000 per year. She gets a 12% raise, then 6 months later takes a new job that pays $7,500 more per year than her post-raise salary. What is her final annual salary?
     """
@@ -233,8 +214,6 @@ print(f"Response: {response}\n")
 
 # ---------------------------------------------------------------------------- #
 # Prompt Q5 — Structured Output
-print("=== Prompt Q5 — Structured Output ===")
-
 review = "I've been using this tool for three months. It handles large datasets well, \
 but the UI is clunky and the export options are limited."
 response = get_response(
@@ -271,8 +250,6 @@ except KeyError:
 
 # ---------------------------------------------------------------------------- #
 # Prompt Q6 — Delimiters
-print("=== Prompt Q6 — Delimiters ===")
-
 user_text = "First boil a pot of water. Once boiling, add a handful of salt and the \
 pasta. Cook for 8-10 minutes until al dente. Drain and toss with your sauce of choice."
 prompt = f"""
@@ -300,8 +277,6 @@ print(f"Response 2:\n{response}\n")  # returns "No steps provided."
 # Local Models with Ollama
 
 # Ollama Q1
-print("=== Ollama Q1 ===")
-
 prompt = "Explain what a large language model is in two sentences."
 
 # ollama run qwen3:0.6b "Explain what a large language model is in two sentences."
