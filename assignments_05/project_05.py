@@ -38,7 +38,6 @@ SYSTEM_PROMPT = """
 
 # ---------------------------------------------------------------------------- #
 # Task 2: Bullet Point Rewriter
-# Weak bullet points tend to use vague/passive verbs, give no metrics or context, and describe activities rather than results. The model suggested changes like swapping weak verbs for specific ones (ex. "worked" to "collaborated") and reframed tasks as outcomes.
 
 
 def rewrite_bullets(bullets: list[str]) -> list[dict]:
@@ -52,6 +51,7 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
 
     Respond ONLY with valid JSON, no other text (such as the word "json"). Each item should have two keys:
     "original" (the original bullet) and "improved" (your rewritten version).
+    Do not include any text before or after the JSON array.
 
     Bullet points:
     ```{bullet_text}```
@@ -81,9 +81,11 @@ def rewrite_bullets(bullets: list[str]) -> list[dict]:
         return []
 
 
+# Weak bullet points tend to use vague/passive verbs, give no metrics or context, and describe activities rather than results. The model helps by swapping them for stronger verbs (ex. "worked" to "collaborated") and reframed tasks as outcomes.
+
+
 # ---------------------------------------------------------------------------- #
 # Task 3: Cover Letter Generator
-# I chose examples that feature career changers with relevant knowledge transitioning into technical roles. A few-shot pattern helps maintain a confident tone, control structure (3-5 sentences that ends with a clear "why this company" line), and avoid cliches.
 
 
 def generate_cover_letter(job_title: str, background: str) -> str:
@@ -122,6 +124,9 @@ def generate_cover_letter(job_title: str, background: str) -> str:
     return response_text
 
 
+# I chose examples that feature career changers with relevant knowledge transitioning into technical roles. A few-shot pattern helps maintain a confident tone, control structure (3-5 sentences that ends with a clear "why this company" line), and avoid cliches.
+
+
 # ---------------------------------------------------------------------------- #
 # Task 4: Moderation Check
 
@@ -133,6 +138,38 @@ def is_safe(text: str) -> bool:
         print("Your message was flagged by our content filter. Please rephrase!\n")
         return False
     return True
+
+
+# ---------------------------------------------------------------------------- #
+# Tests
+
+bullets = [
+    "Helped customers with their problems",
+    "Made reports for the management team",
+    "Worked with a team to finish the project on time",
+]
+print("Test starter bullets:")
+rewrite_bullets(bullets)
+
+job_title = "Junior Data Engineer"
+background = (
+    "Five years of experience as a middle school math teacher; recently completed \
+    a Python course and built data pipelines using Prefect and Pandas."
+)
+print("Test cover letter:")
+generate_cover_letter(job_title, background)
+
+mod_tests = [
+    ("Can you help me rewrite my resume for a programming intern role?", True),
+    (
+        "I want to defenestrate my interviewer for asking about my greatest weakness.",
+        False,
+    ),
+]
+print("Test moderation check:")
+for text, expected in mod_tests:
+    result = is_safe(text)
+    print(f"Test passed: {result == expected}\n")
 
 
 # ---------------------------------------------------------------------------- #
@@ -212,41 +249,10 @@ def run_chatbot():
 
 
 if __name__ == "__main__":
-    bullets = [
-        "Helped customers with their problems",
-        "Made reports for the management team",
-        "Worked with a team to finish the project on time",
-    ]
-    print("Test starter bullets:")
-    rewrite_bullets(bullets)
-
-    job_title = "Junior Data Engineer"
-    background = (
-        "Five years of experience as a middle school math teacher; recently completed \
-        a Python course and built data pipelines using Prefect and Pandas."
-    )
-    print("Test cover letter:")
-    generate_cover_letter(job_title, background)
-
-    mod_tests = [
-        ("Can you help me rewrite my resume for a programming intern role?", True),
-        (
-            "I want to defenestrate my interviewer for asking about my greatest weakness.",
-            False,
-        ),
-    ]
-    print("Test moderation check:")
-    for text, expected in mod_tests:
-        result = is_safe(text)
-        print(f"Test passed: {result == expected}\n")
-
     run_chatbot()
 
 # ---------------------------------------------------------------------------- #
-# Task 6: Ethics Reflection (Option A — Comment block)
+# Task 6: Ethics Reflection
+# Option A — Comment block
 
-# The bot was trained on text leaning towards English-speaking, Western professional culture. This could produce biased advice that favors certain communication styles, industries, or cultural backgrounds that may not always be appropriate. For example, the model might favor specific action verbs, phrases, or terms that are more common in the American tech industry, as prompt examples were tech-based roles.
-
-# If a job-seeker submits the bot's output directly without reviewing it, they might include inaccurate information, miss important details about their actual experience, or be unable to fully explain it. The bot's suggestions should be treated as starting points that require human review and customization.
-
-# One guardrail I would add is a reminder for users to review and edit the produced content before submitting it anywhere. Another would be to implement a disclaimer that the advice is not guaranteed to be accurate or appropriate for all situations, and that users should use their own judgment when applying suggestions.
+# The bot was trained on text leaning towards English-speaking, Western professional culture, which could produce biased advice that favors certain communication styles, industries, or cultural backgrounds that may not always be appropriate. For example, the model might favor specific action verbs, phrases, or terms that are more common in the American tech industry, as prompt examples were tech-based roles. If a job-seeker submits the bot's output directly without reviewing it, they might include inaccurate information, miss important details about their actual experience, or be unable to fully explain it. The bot's suggestions should be treated as starting points that require human review and customization. One guardrail I would add is a reminder for users to review and edit the produced content before submitting it anywhere. Another would be to implement a disclaimer that the advice is not guaranteed to be accurate or appropriate for all situations, and that users should use their own judgment when applying suggestions.
