@@ -250,8 +250,15 @@ response = get_response(
 )
 print(f"Raw response: {response}\n")
 
+clean = (
+    response.strip()
+    .removeprefix("```json")
+    .removeprefix("```")
+    .removesuffix("```")
+    .strip()
+)
 try:
-    response_json = json.loads(response)
+    response_json = json.loads(clean)
     print(
         f"Sentiment: {response_json['sentiment']}\n"
         f"Confidence: {response_json['confidence']}\n"
@@ -295,15 +302,24 @@ print(f"Response 2:\n{response}\n")  # returns "No steps provided."
 # Ollama Q1
 print("=== Ollama Q1 ===")
 
-# ollama run qwen3:0.6b "Explain what a large language model is in two sentences."
 prompt = "Explain what a large language model is in two sentences."
-response = get_response(prompt)
-print(f"OpenAI response: {response}\n")
 
+# ollama run qwen3:0.6b "Explain what a large language model is in two sentences."
+ollama_output = """A large language model is an AI system designed to understand and generate
+human language, trained on vast datasets to learn patterns and improve
+accuracy over time. It can comprehend complex contexts and produce coherent
+text for tasks such as writing, translation, and content creation."""
 # Ollama terminal output:
 # A large language model is an AI system designed to understand and generate
 # human language, trained on vast datasets to learn patterns and improve
 # accuracy over time. It can comprehend complex contexts and produce coherent
 # text for tasks such as writing, translation, and content creation.
 
-# Both Ollama's and OpenAI's responses are very similar, with Ollama's having a more broader explanation and using less technical terms (like "machine learning"). I think the main advantage of running a model locally is more privacy, offline access, and your data not being used for unauthorized training. Conversely, local models do not update (their training data may only contain knowledge up to a certain date) and cannot search the internet for additional information.
+response = get_response(prompt)
+openai_output = response.choices[0].message.content
+
+print(f"Ollama output:\n{ollama_output}\n")
+print(f"OpenAI output:\n{openai_output}\n")
+
+
+# Both Ollama's and OpenAI's responses are very similar, with Ollama's having a more broader explanation and using less technical terms (like "machine learning"). The main advantage of running a model locally is more privacy, offline access, and your data not being used for unauthorized training. Disadvantages of local models include being potentially out of date (as their training data may only contain knowledge up to a certain date) and unable to search the internet for additional/new information.
