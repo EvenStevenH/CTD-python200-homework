@@ -1,5 +1,4 @@
 from dotenv import load_dotenv
-import os
 import string
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from llama_index.llms.openai import OpenAI
@@ -181,7 +180,11 @@ rag_answer(query, documents)
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
-docs = SimpleDirectoryReader("./brightleaf_pdfs").load_data()  # load docs
+
+brightleaf_dir = "../../06_AI_augmentation/brightleaf_pdfs"
+assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
+
+docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
 index = VectorStoreIndex.from_documents(docs)  # in-memory pipeline using docs
 engine = index.as_query_engine(similarity_top_k=3)  # query engine with setting
 
@@ -198,12 +201,11 @@ for q in questions:
     print("Chunks:")
     for i, node in enumerate(response.source_nodes):
         score = round(node.score, 4) if node.score else "N/A"
-        print(f"Chunk {i} | Similarity Score: {score}")
-        print(f"Preview:\n{node.text[:150]}\n")
+        print(f"Source Node {i}")
+        print(f"Similarity Score: {score}")
+        print(f"Chunk Preview: {node.text[:150]}")
 
-# For both queries, the retrieved chunks don't appear observably relevant to the question; they either resemble PDF formatting or a binary-like jumble of letters, numbers, and symbols. This is somewhat unexpected, as they have a fairly high positive similarity scores.
-
-# The model's response tone sound hesitant and avoidant. For the first query, it'll say that it cannot find direct mentions in the documents. For the second query, it'll suggest referring the original document instead of giving me any details.
+# Retrieval worked well for both queries, and the model provided a relevant answer to the questions. The model's response tone is confident and specific, with little to no hedging language For the first query, it was able to list actual benefit names like the Wellness Reimbursement Plan, Learning Hub, and 401(k) match. For the second query, it was able to cover things like credential rotation, encryption, and ISO 27001 alignment. Both responses had a irrelevant chunk/node, but the model was able to correctly ignore it and focus on the context it needs in each case.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -216,8 +218,9 @@ for k in [1, 5]:
     print(f"A: {response}\n")
     for i, node in enumerate(response.source_nodes):
         score = round(node.score, 4) if node.score else "N/A"
-        print(f"Chunk {i+1} | Similarity Score: {score}")
-        print(f"Preview: {node.text[:150]}\n")
+        print(f"Source Node {i}")
+        print(f"Similarity Score: {score}")
+        print(f"Chunk Preview: {node.text[:150]}")
 
 
 # The response remained insufficient for both top_k=1 and top_k=5, where the model will vaguely say that employee benefits exist (but won't go into detail) or say that they are not mentioned in the provided context information.
@@ -247,18 +250,20 @@ faithfulness = FaithfulnessEvaluator(llm=llm)
 relevancy = RelevancyEvaluator(llm=llm)
 
 
-def evaluate_query(query):
+def evaluate_query(query, type):
     response = engine.query(query)
     faith_result = faithfulness.evaluate_response(response=response)
     rel_result = relevancy.evaluate_response(query=query, response=response)
-    print(f"A: {response}")
+    print(f"=== Evaluation of an Expected {type} Query ===")
     print(f"Query: {query}")
+    print(f"Response: {response}")
+    print("Evaluator Results:")
     print(f"Faithfulness score: {faith_result.score}")
     print(f"Relevancy score: {rel_result.score}\n")
 
 
-evaluate_query("What employee benefits does BrightLeaf offer?")
-evaluate_query("Does BrightLeaf have dogs working in any positions?")
+evaluate_query("What employee benefits does BrightLeaf offer?", "Good")
+evaluate_query("Does BrightLeaf have dogs working in any positions?", "Poor")
 
 # Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context. A score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context.
 

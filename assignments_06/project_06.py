@@ -55,20 +55,21 @@ response = engine.query(query)
 print(f"Query: {query}")
 print(f"Answer: {response}")
 print("All retrieved source nodes:")
-for i, node in enumerate(response.source_nodes):
-    top_node = response.source_nodes[0]
-    name = top_node.node.metadata.get("file_name", "unknown file")
+for i, node in enumerate(response.source_nodes, start=1):
+    name = node.node.metadata.get("file_name", "unknown file")
     score = round(node.score, 4) if node.score else "N/A"
-    print(f"Node {i+1}: {name} | Similarity Score: {score}")
-    print(f"Preview: {top_node.node.text[:200]}\n")
+    print(f"Source Node {i}")
+    print(f"Document: {name}")
+    print(f"Similarity Score: {score}")
+    print(f"Preview: {node.node.text[:200]}")
 
 # I wanted to ask about the bathroom policy. I expected it to be hard because it is a relatively valid question, but the answer is simply not in the documents. When the retrieval failed, the model became less certain (with similarity scores of 0.70–0.75) and mentioned that it could not find the answer. This response is fairly acceptable for this specific question by acknowledging the failure without jumping to hallucinating, but I cannot say the same about trusting other AI-generated responses on more specific questions that nuanced, highly accurate details. To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
 
-# For my project, the LlamaIndex implementation took less than 5 lines of code to creating the index and query engine, compared to building the semantic rag manually. A framework like LlamaIndex saves much more time and reduces complexity so the developer can focus on the product.
+# The manual semantic RAG implementation from the lesson required dozens of lines to handle loading, chunking, embedding, indexing, and retrieval. In this project, the equivalent LlamaIndex implementation only required about 3 lines to build the index and query engine. This demonstrates how frameworks greatly reduce boilerplate while still providing the same core functionality.
 
 # A different use case using LlamaIndex in a system for answering question from real documents could be for hospitals. That is, staff can use to prompt responses for medical guidelines, clinical standards, and hospital-specific guidelines, saving them time from reading long documents so they can spend it on patients that need them.
 
-# Ine failure mode that RAG cannot fully prevent, even when retrieval is working correctly, is possibly overgeneralization or misinterpretation of information. In other words, it can give a confident but possibly inaccurate answer after confusing context between sources (ex. subtle differences in phrasing) and fabricating answers purely based on the retrieval step.
+# One failure mode that RAG cannot fully prevent is incorrect reasoning over correctly retrieved information. Even when the relevant documents are retrieved, the language model can misunderstand the context, combine facts incorrectly, or draw an unsupported conclusion. Retrieval improves grounding but cannot guarantee perfect reasoning.
