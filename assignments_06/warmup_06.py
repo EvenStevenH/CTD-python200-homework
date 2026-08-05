@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from pathlib import Path
 import string
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 from llama_index.llms.openai import OpenAI
@@ -33,26 +34,26 @@ else:
 
 # Concepts Question 3
 
-# steps = [
-#     "Receive the user's query",
-#     "Embed the user's query",
-#     "Extract text from source documents",
-#     "Split text into chunks",
-#     "Convert text chunks into embeddings",
-#     "Retrieve the most relevant chunks",
-#     "Inject retrieved chunks into the prompt",
-#     "Generate a response from the LLM",
-# ]
+steps = [
+    "Receive the user's query",
+    "Embed the user's query",
+    "Extract text from source documents",
+    "Split text into chunks",
+    "Convert text chunks into embeddings",
+    "Retrieve the most relevant chunks",
+    "Inject retrieved chunks into the prompt",
+    "Generate a response from the LLM",
+]
 
 # Correct order and description:
-# 1. The process starts with getting the input question or request.
-# 2. The query is converted into an embedding to find similar text in documents.
-# 3. Text is pulled from relevant sources (e.g., PDFs, web pages).
-# 4. Large texts are divided into smaller segments for efficient processing.
-# 5. Each chunk is turned into an embedding vector.
-# 6. The system finds and selects the best-matching text based on similarity to the query embedding.
-# 7. The selected information is added to the input for the LLM.
-# 8. The final answer is produced, incorporating the retrieved context.
+# 1. Receive the user's query: the process starts with getting the input question or request.
+# 2. Embed the user's query: the query is converted into an embedding to find similar text in documents.
+# 3. Extract text from source documents: text is pulled from relevant sources (e.g., PDFs, web pages).
+# 4. Split text into chunks: large texts are divided into smaller segments for efficient processing.
+# 5. Convert text chunks into embeddings: each chunk is turned into an embedding vector.
+# 6. Retrieve the most relevant chunks: the system finds and selects the best-matching text based on similarity to the query embedding.
+# 7. Inject retrieved chunks into the prompt: the selected information is added to the input for the LLM.
+# 8. Generate a response from the LLM: the final answer is produced, incorporating the retrieved context.
 
 # ---------------------------------------------------------------------------- #
 
@@ -143,7 +144,7 @@ documents = {
 # # Keyword Question 1
 query = "What are your hours on weekends?"
 rag_answer(query, documents)
-# loyalty.txt was the selected document, which is incorrect (it would realistically be hours.txt). The hours, hiring, and loyalty documents all have an overlap of 1. However, simple_keyword_retrieval returns whichever one was added to the list first (loyalty.txt in this case) due to next() in its logic.
+# Several documents tie with the same overlap score of 1. After sorting, Python breaks the tie using the document name, so the first tied document after sorting is selected. The function simply returns the first highest-scoring match, making tie behavior depend on the ordering produced by the sort (the selected document becoming loyalty.txt).
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
@@ -181,7 +182,7 @@ rag_answer(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-brightleaf_dir = "../../06_AI_augmentation/brightleaf_pdfs"
+brightleaf_dir = Path("../../06_AI_augmentation/brightleaf_pdfs")
 assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
 
 docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
@@ -211,7 +212,7 @@ for q in questions:
 # LlamaIndex Question 2
 print("====== LlamaIndex Q2 ======\n")
 query2 = "What employee benefits does BrightLeaf offer?"
-for k in [1, 5]: # reruns query twice with top_k=1 and top_k=5
+for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
     engine_k = index.as_query_engine(similarity_top_k=k)
     response = engine_k.query(query2)
     print(f"Question (top_k={k}): {query2}")
@@ -225,7 +226,7 @@ for k in [1, 5]: # reruns query twice with top_k=1 and top_k=5
 
 # The response remained insufficient for both top_k=1 and top_k=5, where the model will vaguely say that employee benefits exist (but won't go into detail) or say that they are not mentioned in the provided context information.
 
-# At top_k=1, only one chunk was used; its low quality provided no meaningful context. At top_k=5, 5 chunks were used for more potential context, but all of them were still unreadable/corrupted and thus did not improve the output.
+# The responses with similarity_top_k=1 and similarity_top_k=5 were very similar. Using five chunks provided more supporting context, but it did not substantially improve the final answer. More retrieved context is not always better because additional chunks can be redundant or less relevant.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
@@ -267,4 +268,6 @@ evaluate_query("Does BrightLeaf have dogs working in any positions?", "Poor")
 
 # Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context, while score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
-# Both faithfulness and relevancy scores changed between the queries, which happens because the first query is generally well-supported by the documents while the second one is not clearly detailed in them. The "LLM-as-a-judge" approach uses a language model to evaluate another model's output. It's used instead of a simple accuracy metric because simple text-match rules via RAG evaluations difficult to score.
+# Both faithfulness and relevancy scores changed between the queries. The first query received higher faithfulness and relevancy scores because the requested information existed in the BrightLeaf documents. The second query produced lower scores because the documents did not contain information needed to answer it. The evaluators reflected this difference in response quality.
+
+# The "LLM-as-a-judge" approach uses a language model to evaluate another model's output. It's used instead of a simple accuracy metric because simple text-match rules via RAG evaluations difficult to score.

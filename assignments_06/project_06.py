@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+from pathlib import Path
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 
 # ---------------------------------------------------------------------------- #
@@ -8,7 +9,7 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-docs_dir = "../../06_AI_augmentation/brightleaf_pdfs"
+docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 print(f"Document directory found!\n")
 
@@ -34,15 +35,14 @@ questions = [
 ]
 for q in questions:
     response = engine.query(q)
+    top_node = response.source_nodes[0]
+    doc_name = top_node.node.metadata.get("file_name", "unknown")
+    score = round(top_node.score, 4) if top_node.score else "N/A"
     print(f"Question: {q}")
     print(f"Answer: {response}")
-    for i, node in enumerate(response.source_nodes):
-        top_node = response.source_nodes[0]
-        doc_name = top_node.node.metadata.get("file_name", "unknown file")
-        score = round(top_node.score, 4) if top_node.score else "N/A"
-        print(f"Top Retrieved Source: {doc_name}")
-        print(f"Similarity Score: {score}")
-        print(f"Preview: {top_node.node.text[:200]}\n")
+    print(f"Top Retrieved Source: {doc_name}")
+    print(f"Similarity Score: {score}")
+    print(f"Preview: {top_node.node.text[:200]}")
 
 # For all five responses, the assistant sounded confident, was accurate to the source material, and had high similarity scores (in the 0.76–0.90 range). There was also consistency between questions, retrieved context, and final answers. There was surprisingly little to no signs of hallucinations, meaning the model performed very well.
 
