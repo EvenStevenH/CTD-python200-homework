@@ -198,7 +198,7 @@ for q in questions:
     response = engine.query(q)
     print(f"Q: {q}")
     print(f"A: {response}\n")
-    print("Chunks:")
+    print("All retrieved chunks:")
     for i, node in enumerate(response.source_nodes):
         score = round(node.score, 4) if node.score else "N/A"
         print(f"Source Node {i}")
@@ -211,11 +211,11 @@ for q in questions:
 # LlamaIndex Question 2
 print("====== LlamaIndex Q2 ======\n")
 query2 = "What employee benefits does BrightLeaf offer?"
-for k in [1, 5]:
+for k in [1, 5]: # reruns query twice with top_k=1 and top_k=5
     engine_k = index.as_query_engine(similarity_top_k=k)
     response = engine_k.query(query2)
     print(f"Question (top_k={k}): {query2}")
-    print(f"A: {response}\n")
+    print(f"Answer: {response}\n")
     for i, node in enumerate(response.source_nodes):
         score = round(node.score, 4) if node.score else "N/A"
         print(f"Source Node {i}")
@@ -230,11 +230,11 @@ for k in [1, 5]:
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
 print("====== LlamaIndex Q3 ======\n")
-query3 = "Do any Brightleaf employees currently own any dogs?"
+query3 = "What new products or services is BrightLeaf planning to launch next year?"
 response = engine.query(query3)
-print(f"Q: {query3}")
-print(f"A: {response}\n")
-print("Chunks:")
+print(f"Question: {query3}")
+print(f"Answer: {response}\n")
+print("All retrieved chunks:")
 for i, node in enumerate(response.source_nodes):
     score = round(node.score, 4) if node.score else "N/A"
     print(f"Chunk {i} | Similarity Score: {score}")
@@ -265,10 +265,6 @@ def evaluate_query(query, type):
 evaluate_query("What employee benefits does BrightLeaf offer?", "Good")
 evaluate_query("Does BrightLeaf have dogs working in any positions?", "Poor")
 
-# Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context. A score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context.
+# Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context, while score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
-# Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
-
-# The scores changed between the queries, which happens because the first query is generally well-supported by the documents while the second one is not clearly detailed in them.
-
-# The "LLM-as-a-judge" approach uses a language model to evaluate another model's output. It's used instead of a simple accuracy metric because simple text-match rules via RAG evaluations difficult to score.
+# Both faithfulness and relevancy scores changed between the queries, which happens because the first query is generally well-supported by the documents while the second one is not clearly detailed in them. The "LLM-as-a-judge" approach uses a language model to evaluate another model's output. It's used instead of a simple accuracy metric because simple text-match rules via RAG evaluations difficult to score.

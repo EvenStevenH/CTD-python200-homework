@@ -1,6 +1,4 @@
 from dotenv import load_dotenv
-from pathlib import Path
-import os
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex
 
 # ---------------------------------------------------------------------------- #
@@ -10,7 +8,7 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-docs_dir = Path("./groundwork_docs")
+docs_dir = "../../06_AI_augmentation/brightleaf_pdfs"
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 print(f"Document directory found!\n")
 
@@ -40,9 +38,10 @@ for q in questions:
     print(f"Answer: {response}")
     for i, node in enumerate(response.source_nodes):
         top_node = response.source_nodes[0]
-        name = top_node.node.metadata.get("file_name", "unknown file")
-        score = round(node.score, 4) if node.score else "N/A"
-        print(f"Top Source: {name} | Similarity Score: {score}")
+        doc_name = top_node.node.metadata.get("file_name", "unknown file")
+        score = round(top_node.score, 4) if top_node.score else "N/A"
+        print(f"Top Retrieved Source: {doc_name}")
+        print(f"Similarity Score: {score}")
         print(f"Preview: {top_node.node.text[:200]}\n")
 
 # For all five responses, the assistant sounded confident, was accurate to the source material, and had high similarity scores (in the 0.76–0.90 range). There was also consistency between questions, retrieved context, and final answers. There was surprisingly little to no signs of hallucinations, meaning the model performed very well.
@@ -54,7 +53,7 @@ query = "What is the bathroom policy?"
 response = engine.query(query)
 print(f"Query: {query}")
 print(f"Answer: {response}")
-print("All retrieved source nodes:")
+print("All three retrieved source nodes:")
 for i, node in enumerate(response.source_nodes, start=1):
     name = node.node.metadata.get("file_name", "unknown file")
     score = round(node.score, 4) if node.score else "N/A"
@@ -63,7 +62,7 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview: {node.node.text[:200]}")
 
-# I wanted to ask about the bathroom policy. I expected it to be hard because it is a relatively valid question, but the answer is simply not in the documents. When the retrieval failed, the model became less certain (with similarity scores of 0.70–0.75) and mentioned that it could not find the answer. This response is fairly acceptable for this specific question by acknowledging the failure without jumping to hallucinating, but I cannot say the same about trusting other AI-generated responses on more specific questions that nuanced, highly accurate details. To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
+# I wanted to ask about the bathroom policy, expecting it to be hard because it is a relatively valid question, but the answer is simply not in the documents. When the retrieval failed, the model became less certain (with similarity scores of 0.70–0.75) and mentioned that it could not find the answer. This response is fairly acceptable for this specific question by acknowledging the failure without jumping to hallucinating, but I cannot say the same about trusting other AI-generated responses on more specific questions that nuanced, highly accurate details. To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
