@@ -34,29 +34,17 @@ else:
 
 # Concepts Question 3
 
-# original, out-of-order list
-
-# steps = [
-#     "Generate a response from the LLM",
-#     "Extract text from source documents",
-#     "Receive the user's query",
-#     "Retrieve the most relevant chunks",
-#     "Convert text chunks into embeddings",
-#     "Inject retrieved chunks into the prompt",
-#     "Split text into chunks",
-#     "Embed the user's query",
-# ]
-
 # correct sequence with description:
-
-# Extract text from source documents: text is pulled from relevant sources (e.g., PDFs, web pages).
-# Split text into chunks: large texts are divided into smaller segments for efficient processing.
-# Convert text chunks into embeddings: each chunk is turned into an embedding vector.
-# Receive the user's query: process gets the input question or request.
-# Embed the user's query: the query is converted into an embedding to find similar text in documents.
-# Retrieve the most relevant chunks: the system finds and selects the best-matching text based on similarity to the query embedding.
-# Inject retrieved chunks into the prompt: the selected information is added to the input for the LLM.
-# Generate a response from the LLM: the final answer is produced, incorporating the retrieved context.
+# steps = [
+#     "Extract text from source documents",  # text is pulled from relevant sources (e.g., PDFs, web pages).
+#     "Split text into chunks",  # large texts are divided into smaller segments for efficient processing.
+#     "Convert text chunks into embeddings",  # each chunk is turned into an embedding vector.
+#     "Receive the user's query",  # process gets the input question or request.
+#     "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
+#     "Retrieve the most relevant chunks",  # the system finds and selects the best-matching text based on similarity to the query embedding.
+#     "Inject retrieved chunks into the prompt",  # the selected information is added to the input for the LLM.
+#     "Generate a response from the LLM",  # the final answer is produced, incorporating the retrieved context.
+# ]
 
 # ---------------------------------------------------------------------------- #
 
@@ -147,12 +135,13 @@ documents = {
 # Keyword Question 1
 query = "What are your hours on weekends?"
 rag_answer(query, documents)
-# Printed output confirms a three-way tie at overlap=1: hours.txt matches on "weekends", hiring.txt matches on "your", and loyalty.txt also matches on "your". Because scores.sort(reverse=True) sorts tuples of (score, name, content), ties are broken by comparing document names in descending alphabetical order, and "loyalty.txt" sorts ahead of "hours.txt" and "hiring.txt". So the function selects loyalty.txt when the hours.txt is clearly the right answer.
+# hours.txt was selected because the query matches with keywords from the document, such as the word "weekends".
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 rag_answer(query, documents)
-# The model ended up selecting no documents. Keyword RAG gets this wrong (as the documents imply a caffeine through terms like "espresso" and "lattes"), but this retrieval method is unable to infer because it relies on finding overlapping keywords. I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match from the document.
+# The selected document was "None found". Keyword RAG gets this wrong and is unable to make inferences (through document terms like "espresso" and "lattes") and found no overlapping keywords.
+# I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match from the document.
 
 # Keyword Question 3
 query = "How do I sign up for rewards?"
@@ -209,9 +198,9 @@ for q in questions:
         print(f"Node {i} | Similarity Score: {score}")
         print(f"Chunk Preview: {node.text[:150]}\n")
 
-# For the first query, retrieval worked well. it was able to list actual benefit names like the Wellness Reimbursement Plan, Learning Hub, and 401(k) match; the lowest-scored node printed above (the weakest match in that query's set) read as the least relevant of the three. The model provided a relevant answer to the questions. The model's response tone is confident and specific, with little to no hedging language.
+# For the first query, only the third chunk look irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. Unexpectedly, even with high similarly scores (ranging form 0.77–0.80), the model did not retrieve employee benefits from the provided context and states, "The employee benefits offered by BrightLeaf are not specified in the provided context information." 
 
-# For the second query, retrieval worked well. It was able to cover things like credential rotation,encryption, and ISO 27001 alignment; again the lowest-scored node in that set was the one that didn't clearly support the answer (and correctly ignored the weaker chunk rather than incorporating it into the response). The model provided a relevant answer to the questions. The model's response tone is confident and specific, with little to no hedging language.
+# For the second query, the third chunk still looks irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. With high similarly scores (ranging form 0.79–0.82), the model was able to identify security policies from the provided context. However, it does not go into detail and states, "BrightLeaf's security policies are outlined in the PDF document located at the file path provided." 
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -229,9 +218,7 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
         print(f"Chunk Preview: {node.text[:150]}\n")
 
 
-# The response remained insufficient for both top_k=1 and top_k=5. At top_k=1, the model will vaguely say that employee benefits exist (but won't go into detail): "BrightLeaf offers a variety of employee benefits." At top_k=5 or say that they are not mentioned in the provided context information: "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information."
-
-# Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer. More retrieved context is not always better because additional chunks can be redundant or less relevant.
+# The response changed for both top_k=1 and top_k=5. At top_k=1 (with similarly scores of 0.80) the model will say that employee benefits exist (but won't go into detail), stating, "BrightLeaf offers a variety of employee benefits." At top_k=5 with (similarly scores ranging form 0.77–0.80), the model will say that employee benefits can't be found, stating, "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information." Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer;more retrieved context is not always better because additional chunks can be redundant or less relevant.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
@@ -246,7 +233,7 @@ for i, node in enumerate(response.source_nodes):
     print(f"Chunk {i} | Similarity Score: {score}")
     print(f"Preview:\n{node.text[:150]}\n")
 
-# I expected the model to be vague or confidently provide a fabricated answer. What actually happened is the model being unable to answer, since since it could not find relevant information for my query. To change the system to handle this kind of query/failure better, I might set up a minimum relevance threshold or use a system prompt to provide a fallback response to minimize the possibility of hallucinations.
+# I expected the model to be vague or provide a fabricated answer. What actually happened: the model was unable to confidently answer, since since it could not find relevant information for my query. With similarity scores in the 0.74 range (comparatively lower than with good queries), it doesn't go into detail and states that "BrightLeaf is planning to launch new products or services next year." To change the system to handle this kind of query/failure better, I might set up a minimum relevance threshold or use a system prompt to provide a fallback response to minimize the possibility of hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 4

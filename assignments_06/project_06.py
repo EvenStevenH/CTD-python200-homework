@@ -9,8 +9,8 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
-# docs_dir = Path("./groundwork_docs")
+# docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
+docs_dir = Path("./groundwork_docs")
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 print(f"Document directory found!\n")
 
@@ -66,7 +66,11 @@ for i, node in enumerate(response.source_nodes, start=1):
 
 # I wanted to ask about the bathroom policy, expecting it to be hard because it is a relatively valid question while knowing that the answer is simply not in the documents.
 
-# The retrieval failed, and the model states that the documents do not mention a bathroom policy. The model had became less certain (with similarity scores of 0.70–0.75), but this response is fairly acceptable for this specific question. It acknowledges the failure over hallucinating, but I cannot say the same about trusting other AI-generated responses on more specific questions that nuanced, highly accurate details. To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
+# The retrieval failed: it will either state that the documents do not mention a bathroom policy, or that "Dogs are not permitted inside."
+
+# The model's tone did not change. Even with similarity scores of 0.70–0.75, it confidently gave me an answer that "Dogs are not permitted inside" when I was asking about neither dogs nor the dog policy. It suggests that AI-generated responses should not always be trusted at face value, and should be fact-checked when possible (especially on questions requiring more nuanced, highly accurate details).
+
+# To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
