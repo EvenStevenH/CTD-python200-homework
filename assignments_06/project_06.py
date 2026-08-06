@@ -76,8 +76,8 @@ for i, node in enumerate(response.source_nodes, start=1):
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
 
-# 1. Framework value (lines of code):
-# The manual semantic RAG implementation can require dozens of lines to handle loading, chunking, embedding, indexing, and retrieval. In my project, the equivalent LlamaIndex implementation only required me to use 3 lines to build the index and query engine. This demonstrates how frameworks greatly reduce boilerplate while still providing the same core functionality.
+# 1. Framework value:
+# In my project, the equivalent LlamaIndex implementation only required me to use 3 lines to handle loading, chunking, embedding, indexing, and retrieval; much short than a manual semantic RAG pipeline. This demonstrates how frameworks greatly reduce boilerplate while still providing the same core functionality.
 
 # 2. A different real-world use case:
 # A hospital's HR and compliance team could use this same approach to let staff ask natural-language questions against internal policy manuals, clinical guideline PDFs, and shift-scheduling documents. Instead of searching through dozens of long documentation by hand, a nurse or administrator could ask "What is the protocol for reporting a needle stick injury?" and get an answer grounded in the actual hospital documents, with the source policy cited (allowing for manual review), saving time and reducing the risk of staff relying on outdated memory of a policy that has since changed.
