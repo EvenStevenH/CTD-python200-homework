@@ -156,7 +156,7 @@ rag_answer(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-brightleaf_dir = Path("./resources/brightleaf_pdfs") # relative to script
+brightleaf_dir = Path("../assignments_06/brightleaf_pdfs")  # relative to script
 assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
 
 docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
@@ -226,7 +226,7 @@ faithfulness = FaithfulnessEvaluator(llm=llm)
 relevancy = RelevancyEvaluator(llm=llm)
 
 
-def evaluate_query(query):
+def evaluate_query(query):  # print both scores for both queries
     response = engine.query(query)
     faith_result = faithfulness.evaluate_response(response=response)
     rel_result = relevancy.evaluate_response(query=query, response=response)
