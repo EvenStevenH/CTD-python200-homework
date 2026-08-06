@@ -66,9 +66,7 @@ for i, node in enumerate(response.source_nodes, start=1):
 
 # I wanted to ask about the bathroom policy, expecting it to be hard because it is a relatively valid question while knowing that the answer is simply not in the documents.
 
-# The retrieval failed: it will either state that the documents do not mention a bathroom policy, or that "Dogs are not permitted inside."
-
-# The model's tone did not change. Even with similarity scores of 0.70–0.75, it confidently gave me an answer that "Dogs are not permitted inside" when I was asking about neither dogs nor the dog policy. It suggests that AI-generated responses should not always be trusted at face value, and should be fact-checked when possible (especially on questions requiring more nuanced, highly accurate details).
+# The model confidently stated "Dogs are not permitted inside" in response to a question about bathroom policy, despite similarity scores of 0.70–0.75 that should indicate uncertainty. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries, and that AI-generated responses should not always be trusted as is (especially for nuanced, complex questions requiring high accuracy).
 
 # To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
 

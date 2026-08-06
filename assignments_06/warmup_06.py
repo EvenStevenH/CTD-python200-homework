@@ -35,16 +35,16 @@ else:
 # Concepts Question 3
 
 # correct sequence with description:
-# steps = [
-#     "Extract text from source documents",  # text is pulled from relevant sources (e.g., PDFs, web pages).
-#     "Split text into chunks",  # large texts are divided into smaller segments for efficient processing.
-#     "Convert text chunks into embeddings",  # each chunk is turned into an embedding vector.
-#     "Receive the user's query",  # process gets the input question or request.
-#     "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
-#     "Retrieve the most relevant chunks",  # the system finds and selects the best-matching text based on similarity to the query embedding.
-#     "Inject retrieved chunks into the prompt",  # the selected information is added to the input for the LLM.
-#     "Generate a response from the LLM",  # the final answer is produced, incorporating the retrieved context.
-# ]
+steps = [
+    "Extract text from source documents",  # text is pulled from relevant sources (e.g., PDFs, web pages).
+    "Split text into chunks",  # large texts are divided into smaller segments for efficient processing.
+    "Convert text chunks into embeddings",  # each chunk is turned into an embedding vector.
+    "Receive the user's query",  # process gets the input question or request.
+    "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
+    "Retrieve the most relevant chunks",  # the system finds and selects the best-matching text based on similarity to the query embedding.
+    "Inject retrieved chunks into the prompt",  # the selected information is added to the input for the LLM.
+    "Generate a response from the LLM",  # the final answer is produced, incorporating the retrieved context.
+]
 
 # ---------------------------------------------------------------------------- #
 
@@ -140,13 +140,13 @@ rag_answer(query, documents)
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 rag_answer(query, documents)
-# The selected document was "None found". Keyword RAG gets this wrong and is unable to make inferences (through document terms like "espresso" and "lattes") and found no overlapping keywords.
+# The model states "None found" when it tries to select a document. Keyword RAG gets this wrong and is unable to make inferences (through document terms like "espresso" and "lattes") because it found no exact, overlapping keywords.
 # I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match from the document.
 
 # Keyword Question 3
 query = "How do I sign up for rewards?"
 rag_answer(query, documents)
-# I predicted that loyalty.txt would be selected. After running the code, the model found no documents. I believe this happened because after stopwords were removed, the code was unable to find any overlapping keywords.
+# I predicted that loyalty.txt would be selected. After running the code, the model states "None found" because it found no documents. I believe this result happened because beyond the stopwords, the code was unable to find any overlapping keywords with words like "sign" or "rewards".
 
 # ---------------------------------------------------------------------------- #
 
@@ -198,9 +198,11 @@ for q in questions:
         print(f"Node {i} | Similarity Score: {score}")
         print(f"Chunk Preview: {node.text[:150]}\n")
 
-# For the first query, only the third chunk look irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. Unexpectedly, even with high similarly scores (ranging form 0.77–0.80), the model did not retrieve employee benefits from the provided context and states, "The employee benefits offered by BrightLeaf are not specified in the provided context information." 
+# First query: "What employee benefits does BrightLeaf offer?"
+# only the third chunk look irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. Unexpectedly, even with high similarly scores (ranging form 0.77–0.80), the model did not retrieve employee benefits from the provided context and states, "The employee benefits offered by BrightLeaf are not specified in the provided context information."
 
-# For the second query, the third chunk still looks irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. With high similarly scores (ranging form 0.79–0.82), the model was able to identify security policies from the provided context. However, it does not go into detail and states, "BrightLeaf's security policies are outlined in the PDF document located at the file path provided." 
+# Second query: "What are BrightLeaf's security policies?"
+# The third chunk still looks irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. With high similarly scores (ranging form 0.79–0.82), the model was able to identify security policies from the provided context. However, it does not go into detail and states, "BrightLeaf's security policies are outlined in the PDF document located at the file path provided."
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -218,7 +220,9 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
         print(f"Chunk Preview: {node.text[:150]}\n")
 
 
-# The response changed for both top_k=1 and top_k=5. At top_k=1 (with similarly scores of 0.80) the model will say that employee benefits exist (but won't go into detail), stating, "BrightLeaf offers a variety of employee benefits." At top_k=5 with (similarly scores ranging form 0.77–0.80), the model will say that employee benefits can't be found, stating, "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information." Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer;more retrieved context is not always better because additional chunks can be redundant or less relevant.
+# The response changed between both top_k=1 and top_k=5. At top_k=1 (with similarly scores of 0.80) the model will say that employee benefits exist (but won't go into detail), stating, "BrightLeaf offers a variety of employee benefits." At top_k=5 with (similarly scores ranging form 0.77–0.80), the model will say that employee benefits can't be found, stating, "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information."
+
+# Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer;more retrieved context is not always better because additional chunks can be redundant or less relevant.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
@@ -243,11 +247,10 @@ faithfulness = FaithfulnessEvaluator(llm=llm)
 relevancy = RelevancyEvaluator(llm=llm)
 
 
-def evaluate_query(query, type):
+def evaluate_query(query):
     response = engine.query(query)
     faith_result = faithfulness.evaluate_response(response=response)
     rel_result = relevancy.evaluate_response(query=query, response=response)
-    print(f"=== Evaluation of an Expected {type} Query ===")
     print(f"Query: {query}")
     print(f"Response: {response}")
     print("Evaluator Results:")
@@ -255,8 +258,11 @@ def evaluate_query(query, type):
     print(f"Relevancy score: {rel_result.score}\n")
 
 
-evaluate_query("What employee benefits does BrightLeaf offer?", "Good")
-evaluate_query("Does BrightLeaf have dogs working in any positions?", "Low Quality")
+print("=== Evaluation of target query ===")
+evaluate_query("What employee benefits does BrightLeaf offer?")
+
+print("=== Evaluation of low quality query ===")
+evaluate_query("Does BrightLeaf have dogs working in any positions?")
 
 # Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context, while score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
