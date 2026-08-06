@@ -14,27 +14,14 @@ else:
 # RAG Concepts
 
 # Concepts Question 1
-
-# Scenario A: A legal team wants an assistant that can answer questions about their internal policy library — hundreds of PDFs that are updated every quarter.
-# I would use RAG because the legal team needs to provide up-to-date answers from a large internal policy library. RAG allows retrieval of specific, current information from the PDFs without needing to fine-tune on them.
-
-# Scenario B: A startup wants their model to write product copy in a very specific brand voice — a dry, minimalist style that does not appear much online. They have 3,000 examples their in-house writers produced over the years.
-# I would use fine-tuning because the startup wants their model to write in a very specific, possibly uncommon brand voice. Fine-tuning will help the model learn and replicate this unique style effectively using their vast library of examples.
-
-# Scenario C: A data analyst needs to ask an LLM questions about a single two-page report she just received. She does not need this to work for any other document.
-# I would use prompt engineering because the data analyst needs answers about a single two-page report. Since it's a one-time use case, prompt engineering to provide the document content directly in the query or using a temporary knowledge base is sufficient/efficient enough.
-
-# ---------------------------------------------------------------------------- #
+# For Scenario A, I would use RAG because the legal team needs to provide up-to-date answers from a large internal policy library. RAG allows retrieval of specific, current information from the PDFs without needing to fine-tune on them.
+# For Scenario B, I would use fine-tuning because the startup wants their model to write in a very specific, possibly uncommon brand voice. Fine-tuning will help the model learn and replicate this unique style effectively using their vast library of examples.
+# For Scenario C, I would use prompt engineering because the data analyst needs answers about a single two-page report. Since it's a one-time use case, prompt engineering to provide the document content directly in the query or using a temporary knowledge base is sufficient/efficient enough.
 
 # Concepts Question 2
-
 # A confidently wrong answer can be more harmful than one that says "I am not sure" because it may mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
 
-# ---------------------------------------------------------------------------- #
-
 # Concepts Question 3
-
-# correct sequence with description:
 steps = [
     "Receive the user's query",  # process gets the input question or request.
     "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
@@ -51,6 +38,12 @@ steps = [
 
 # Keyword RAG
 print("====== Keyword RAG ======")
+documents = {
+    "menu.txt": "We serve espresso, lattes, cappuccinos, and cold brew. Pastries include croissants and muffins baked fresh daily. Oat milk and almond milk are available.",
+    "hours.txt": "We are open Monday through Friday from 7am to 7pm. On weekends we open at 8am and close at 5pm. We are closed on Thanksgiving and Christmas Day.",
+    "hiring.txt": "We are currently hiring baristas and shift supervisors. Send your resume to jobs@groundworkcoffee.com.",
+    "loyalty.txt": "Join our loyalty program to earn one point per dollar spent. Redeem 100 points for a free drink of your choice.",
+}
 
 
 def simple_keyword_retrieval(query, documents, verbose=True):
@@ -125,13 +118,6 @@ def rag_answer(query, documents):
     print(f"Selected document: {selected_name}\n")
 
 
-documents = {
-    "menu.txt": "We serve espresso, lattes, cappuccinos, and cold brew. Pastries include croissants and muffins baked fresh daily. Oat milk and almond milk are available.",
-    "hours.txt": "We are open Monday through Friday from 7am to 7pm. On weekends we open at 8am and close at 5pm. We are closed on Thanksgiving and Christmas Day.",
-    "hiring.txt": "We are currently hiring baristas and shift supervisors. Send your resume to jobs@groundworkcoffee.com.",
-    "loyalty.txt": "Join our loyalty program to earn one point per dollar spent. Redeem 100 points for a free drink of your choice.",
-}
-
 # Keyword Question 1
 query = "What are your hours on weekends?"
 rag_answer(query, documents)
@@ -154,16 +140,11 @@ rag_answer(query, documents)
 # Semantic RAG Concepts
 
 # Semantic Question 1
-
 # A vector embedding represents text as a numerical vector in multi=dimensional space. In other words, it's a way to convert data (like words and sentences) into numbers that can capture their meaning and relationships.
-
 # The chunk with cosine similarity of 0.85 is more relevant because this higher score indicates stronger semantic alignment with the query compared to the 0.30 score. Cosine similarity measures the angle between vectors, so a value closer to 1 means the texts are conceptually similar.
-
 # Semantic search can find relevant chunks even when exact words don't match because it captures meaning through vector embeddings rather than relying on surface-level keyword matching.
 
-# ---------------------------------------------------------------------------- #
 # Semantic Question 2
-
 # | Feature                    | Keyword RAG                       | Semantic RAG |
 # |----------------------------|-----------------------------------|--------------|
 # | What is compared?          | Exact word overlap                | Semantic similarity (cosine distance) |
@@ -175,8 +156,7 @@ rag_answer(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-brightleaf_dir = Path("../../06_AI_augmentation/brightleaf_pdfs")
-# brightleaf_dir = Path("./brightleaf_pdfs")
+brightleaf_dir = Path("./brightleaf_pdfs")
 assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
 
 docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
