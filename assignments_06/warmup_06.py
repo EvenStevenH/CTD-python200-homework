@@ -16,7 +16,7 @@ else:
 # Concepts Question 1
 # For Scenario A, I would use RAG because the legal team needs to provide up-to-date answers from a large internal policy library. RAG allows retrieval of specific, current information from the PDFs without needing to fine-tune on them.
 # For Scenario B, I would use fine-tuning because the startup wants their model to write in a very specific, possibly uncommon brand voice. Fine-tuning will help the model learn and replicate this unique style effectively using their vast library of examples.
-# For Scenario C, I would use prompt engineering because the data analyst needs answers about a single two-page report. Since it's a one-time use case, prompt engineering to provide the document content directly in the query or using a temporary knowledge base is sufficient/efficient enough.
+# For Scenario C, I would use prompt engineering because the analyst only needs answers from a single two-page report, one time. The document is short enough to paste directly into the prompt as context, so there's no need to build a reusable retrieval system (chunking, embedding, indexing) for a document that will only ever be queried once.
 
 # Concepts Question 2
 # A confidently wrong answer can be more harmful than one that says "I am not sure" because it may mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
@@ -121,13 +121,14 @@ def rag_answer(query, documents):
 # Keyword Question 1
 query = "What are your hours on weekends?"
 rag_answer(query, documents)
-# "hours.txt" was selected document because the query matches with keywords from the document, such as the word "weekends".
+# "loyalty.txt" was the selected document. This is actually a tie: hours.txt, hiring.txt, and loyalty.txt each overlap with exactly one query token ("weekends" for hours.txt, "your" for the other two; "your" only survives filtering because "you" is a stopword but "your" is not). The tie-break in scores.sort(reverse=True) falls back to sorting by document name, so "loyalty.txt" wins alphabetically even though it isn't the most relevant document for this query. This is a good illustration of a limitation of pure keyword overlap: word-count matching is a weak relevance signal and can be decided by ties that have nothing to do with actual meaning.
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 rag_answer(query, documents)
-# The model returns "No overlapping keywords found" and "None found" (no documents were selected). Keyword RAG got this technically right because it couldn't find exact matches with any of the filtered query tokens, especially with 'caffeine'.
-# I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match (for instance, inferences through document terms like "espresso" and "lattes").
+# This prints "Selected document: None found" because every document has zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'), so simple_keyword_retrieval's fallback ("None found", "No relevant content.") is returned and no real document is selected.
+# Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but it still fails the user: menu.txt is the actually-relevant document (it lists drinks and milk options), but it never mentions the literal word "caffeine" or "without," so exact keyword overlap can't find it.
+# Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
 
 # Keyword Question 3
 # I predict that "loyalty.txt" would be selected.
@@ -175,13 +176,13 @@ for q in questions:
     print(f"A: {response}\n")
     print(f"Retrieved {len(response.source_nodes)} source nodes:")
     for i, node in enumerate(response.source_nodes, start=1):
-        score = round(node.score, 4) if node.score else "N/A"
-        print(f"Node {i} | Similarity Score: {score}")
-        print(f"Chunk Preview:\n{node.text[:150]}\n")
+        doc_name = node.metadata.get("file_name", "unknown")
+        print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
+        print(f"Chunk Preview: {node.text[:150]}\n")
 
-# The retrieved chunks for query 1 looked relevant overall. The employee benefits guide was the top source, and the company overview plus remote work policy appeared as weaker supporting context. The model's tone sounded confident and specific because it listed concrete benefits rather than using hedging language.
+# The retrieved chunks for query 1 are relevant, with "employee_benefits.pdf" used across all three chunks. However, the model's tone sounded confident and specific in saying that, "The employee benefits that BrightLeaf offers are not specified in the provided context information."
 
-# The retrieved chunks for query 2 also looked relevant overall. The dedicated security policy file was the top source, while the company overview and remote work policy showed up as broader supporting material. The model's tone sounded confident and specific because it listed policies rather than using hedging language. Nothing particularly unexpected was retrieved, but it did seem that the high-level company overview appeared in both queries because it shares general company language.
+# The retrieved chunks for query 2 also looked relevant overall, with "security_policy.pdf" used across all three chunks. The model's tone sounded confident and specific, where it states that "BrightLeaf's security policies are outlined in the PDF document located at the file path provided." Not wrong, but not entirely helpful; nothing particularly unexpected was retrieved.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -194,9 +195,9 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
     print(f"Answer (top_k={k}): {response}")
     print(f"Retrieved {len(response.source_nodes)} source nodes:")
     for i, node in enumerate(response.source_nodes, start=1):
-        score = round(node.score, 4) if node.score else "N/A"
-        print(f"Node {i} | Similarity Score: {score}")
-        print(f"Chunk Preview:\n{node.text[:150]}\n")
+        doc_name = node.metadata.get("file_name", "unknown")
+        print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
+        print(f"Chunk Preview: {node.text[:150]}\n")
 
 
 # The response changed between both top_k=1 and top_k=5. At top_k=1 (with similarly scores of 0.80) the model will say that employee benefits exist (but won't go into detail), stating, "BrightLeaf offers a variety of employee benefits." At top_k=5 with (similarly scores ranging form 0.77–0.80), the model will say that employee benefits can't be found, stating, "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information."
@@ -211,10 +212,10 @@ response = engine.query(query3)
 print(f"Question: {query3}")
 print(f"Answer: {response}\n")
 print("All retrieved chunks:")
-for i, node in enumerate(response.source_nodes):
-    score = round(node.score, 4) if node.score else "N/A"
-    print(f"Chunk {i} | Similarity Score: {score}")
-    print(f"Preview:\n{node.text[:150]}\n")
+for i, node in enumerate(response.source_nodes, start=1):
+    doc_name = node.metadata.get("file_name", "unknown")
+    print(f"  Chunk {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
+    print(f"  Preview: {node.text[:150]}\n")
 
 # I expected the model to fabricate an answer. After retrieving context on remote work and benefits, the model states that the documents do not provide a parent leave policy for remote contractors working overseas. This is an acceptable response, as the documents focused on full-time employees and remote workers based in the US. To handle this kind of query better, I might seek additional documents or metadata to provide more context on employees (such as roles, location, and contract status).
 
