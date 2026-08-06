@@ -27,24 +27,24 @@ print("Index built successfully. Ready to answer questions.\n")
 
 # ---------------------------------------------------------------------------- #
 # Step 4: Query the Assistant
-# questions = [
-#     "What are Groundwork's hours on weekends?",
-#     "Do you offer any dairy-free milk options?",
-#     "How does the loyalty program work?",
-#     "How did Groundwork Coffee get started?",
-#     "Do you offer catering or wholesale orders?",
-# ]
-# for i, q in enumerate(questions, start=1):
-#     response = engine.query(q)
-#     top_node = response.source_nodes[0]
-#     doc_name = top_node.node.metadata.get("file_name", "unknown")
-#     score = round(top_node.score, 4) if top_node.score else "N/A"
-#     print(f"--- Question {i} of {len(questions)}")
-#     print(f"Question: {q}")
-#     print(f"Answer: {response}")
-#     print(f"Top Retrieved Document Name: {doc_name}")
-#     print(f"Similarity Score: {score}")
-#     print(f"Preview (first 200 chars): {top_node.node.text[:200]}\n")
+questions = [
+    "What are Groundwork's hours on weekends?",
+    "Do you offer any dairy-free milk options?",
+    "How does the loyalty program work?",
+    "How did Groundwork Coffee get started?",
+    "Do you offer catering or wholesale orders?",
+]
+for i, q in enumerate(questions, start=1):
+    response = engine.query(q)
+    top_node = response.source_nodes[0]
+    doc_name = top_node.node.metadata.get("file_name", "unknown")
+    score = round(top_node.score, 4) if top_node.score else "N/A"
+    print(f"--- Question {i} of {len(questions)}")
+    print(f"Question: {q}")
+    print(f"Answer: {response}")
+    print(f"Top Retrieved Document Name: {doc_name}")
+    print(f"Similarity Score: {score}")
+    print(f"Preview (first 200 chars): {top_node.node.text[:200]}\n")
 
 # Reflection on the five queries: The model performed very well. For all five responses, the assistant sounded confident and accurate to the source material, each with high similarity scores (in the 0.76-0.90 range) - strong consistency between questions, retrieved context, and final answers. None of the five answers surprised me; each one matched what I'd expect to find in a coffee shop's hours, menu, loyalty, story, and catering documents, and the retrieved chunks lined up cleanly with the question being asked.
 
@@ -66,7 +66,7 @@ for i, node in enumerate(response.source_nodes, start=1):
 
 # What I asked and why I expected it to be hard: I asked about the bathroom policy, expecting it to be hard because it is a relatively valid question that may require combining information from multiple  documents.
 
-# the model's tone still sounded just as confident and definitive as it did on the five easier questions. The model confidently stated "Dogs are not permitted inside" in response to a question about bathroom policy, despite similarity scores of 0.70–0.75 that should indicate uncertainty. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries, and that AI-generated responses should not always be trusted as is (especially for nuanced, complex questions requiring high accuracy).
+# What happened: The model confidently stated "Dogs are not permitted inside" in response to a question about bathroom policy, despite similarity scores of 0.70–0.75 that should indicate uncertainty. The model's tone also sounded just as confident and definitive as it did on the five easier questions from Step 4. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries, and that AI-generated responses should not always be trusted as is (especially for nuanced, complex questions requiring high accuracy).
 
 # To improve the system, I might increase similarity_top_k for compound questions, request more documents from stakeholders to provide more context to improve accuracy, or implement fallbacks (for, say, a message if similarity scores fall below a threshold) to avoid hallucinations.
 
