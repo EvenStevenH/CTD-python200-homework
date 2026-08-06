@@ -46,12 +46,12 @@ for i, q in enumerate(questions, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview (first 200 chars): {top_node.node.text[:200]}\n")
 
-# The model performed very well. For all five responses, the assistant sounded confident and accurate to the source material, each with high similarity scores (in the 0.76–0.90 range). That is, there was strong consistency between questions, retrieved context, and final answers.
+# Reflection on the five queries: The model performed very well. For all five responses, the assistant sounded confident and accurate to the source material, each with high similarity scores (in the 0.76-0.90 range) - strong consistency between questions, retrieved context, and final answers. None of the five answers surprised me; each one matched what I'd expect to find in a coffee shop's hours, menu, loyalty, story, and catering documents, and the retrieved chunks lined up cleanly with the question being asked.
 
 # ---------------------------------------------------------------------------- #
 # Step 5: Find a Failure
 
-query = "What is the bathroom policy?"
+query = "If I visit on a Sunday, can I use my loyalty points toward a dairy-free latte?"
 response = engine.query(query)
 print(f"Query: {query}")
 print(f"Answer: {response}")
@@ -76,6 +76,8 @@ for i, node in enumerate(response.source_nodes, start=1):
 # 1. Framework value (lines of code):
 # The manual semantic RAG implementation can require dozens of lines to handle loading, chunking, embedding, indexing, and retrieval. In my project, the equivalent LlamaIndex implementation only required me to use 3 lines to build the index and query engine. This demonstrates how frameworks greatly reduce boilerplate while still providing the same core functionality.
 
+# 2. A different real-world use case:
 # A hospital's HR and compliance team could use this same approach to let staff ask natural-language questions against internal policy manuals, clinical guideline PDFs, and shift-scheduling documents. Instead of searching through dozens of long documentation by hand, a nurse or administrator could ask "What is the protocol for reporting a needle stick injury?" and get an answer grounded in the actual hospital documents, with the source policy cited (allowing for manual review), saving time and reducing the risk of staff relying on outdated memory of a policy that has since changed.
 
+# 3. A failure mode RAG cannot fully prevent:
 # One failure mode that RAG cannot fully prevent is incorrect reasoning over correctly retrieved information. Even when the relevant documents are retrieved, the language model can misunderstand the context, combine facts incorrectly, or draw an unsupported conclusion. Retrieval improves grounding but cannot guarantee perfect reasoning.
