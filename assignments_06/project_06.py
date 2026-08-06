@@ -69,7 +69,7 @@ for i, node in enumerate(response.source_nodes, start=1):
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
 
-# The manual semantic RAG implementation from the lesson required dozens of lines to handle loading, chunking, embedding, indexing, and retrieval. In this project, the equivalent LlamaIndex implementation only required about 3 lines to build the index and query engine. This demonstrates how frameworks greatly reduce boilerplate while still providing the same core functionality.
+# The manual semantic RAG implementation can require dozens of lines to handle loading, chunking, embedding, indexing, and retrieval. In my project, the equivalent LlamaIndex implementation only required me to use 3 lines to build the index and query engine. This demonstrates how frameworks greatly reduce boilerplate while still providing the same core functionality.
 
 # A different use case using LlamaIndex in a system for answering question from real documents could be for hospitals. That is, staff can use to prompt responses for medical guidelines, clinical standards, and hospital-specific guidelines, saving them time from reading long documents so they can spend it on patients that need them.
 
