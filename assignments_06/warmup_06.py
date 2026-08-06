@@ -134,7 +134,7 @@ documents = {
 # # Keyword Question 1
 query = "What are your hours on weekends?"
 rag_answer(query, documents)
-# Several documents tie with the same overlap score of 1. After sorting, Python breaks the tie using the document name, so the first tied document after sorting is selected. The function simply returns the first highest-scoring match, making tie behavior depend on the ordering produced by the sort (the selected document incorrectly becoming loyalty.txt).
+# Printed output confirms a three-way tie at overlap=1: hours.txt matches on "weekends", hiring.txt matches on "your" (from "send your resume"), and loyalty.txt also matches on "your" (from "of your choice"). Because scores.sort(reverse=True) sorts tuples of (score, name, content), ties are broken by comparing document names in descending alphabetical order, and "loyalty.txt" sorts ahead of "hours.txt" and "hiring.txt". So the function selects loyalty.txt -- not because it's the most relevant document (hours.txt is clearly the right answer to "what are your hours on weekends?"), but purely as an artifact of alphabetical tie-breaking on a stopword-stripped overlap word.
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
@@ -189,14 +189,13 @@ for q in questions:
     response = engine.query(q)
     print(f"Q: {q}")
     print(f"A: {response}\n")
-    print("All retrieved chunks:")
-    for i, node in enumerate(response.source_nodes):
+    print(f"Retrieved {len(response.source_nodes)} source nodes:")
+    for i, node in enumerate(response.source_nodes, start=1):
         score = round(node.score, 4) if node.score else "N/A"
-        print(f"Source Node {i}")
-        print(f"Similarity Score: {score}")
-        print(f"Chunk Preview: {node.text[:150]}")
+        print(f"Node {i} | Similarity Score: {score}")
+        print(f"Chunk Preview: {node.text[:150]}\n")
 
-# Retrieval worked well for both queries, and the model provided a relevant answer to the questions. The model's response tone is confident and specific, with little to no hedging language For the first query, it was able to list actual benefit names like the Wellness Reimbursement Plan, Learning Hub, and 401(k) match. For the second query, it was able to cover things like credential rotation, encryption, and ISO 27001 alignment. Both responses had a irrelevant chunk/node, but the model was able to correctly ignore it and focus on the context it needs in each case.
+# Retrieval worked well for both queries, and the model provided a relevant answer to the questions. The model's response tone is confident and specific, with little to no hedging language. For the first query, it was able to list actual benefit names like the Wellness Reimbursement Plan, Learning Hub, and 401(k) match; the lowest-scored node printed above (the weakest match in that query's set) read as the least relevant of the three. For the second query, it was able to cover things like credential rotation,encryption, and ISO 27001 alignment; again the lowest-scored node in that set was the one that didn't clearly support the answer. In both cases the model correctly ignored the weaker chunk rather than incorporating it into the response.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -207,10 +206,10 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
     engine_k = index.as_query_engine(similarity_top_k=k)
     response = engine_k.query(query2)
     print(f"Answer (top_k={k}): {response}")
-    for i, node in enumerate(response.source_nodes):
+    print(f"Retrieved {len(response.source_nodes)} source nodes:")
+    for i, node in enumerate(response.source_nodes, start=1):
         score = round(node.score, 4) if node.score else "N/A"
-        print(f"Source Node {i}")
-        print(f"Similarity Score: {score}")
+        print(f"Node {i} | Similarity Score: {score}")
         print(f"Chunk Preview: {node.text[:150]}\n")
 
 
@@ -254,7 +253,7 @@ def evaluate_query(query, type):
 
 
 evaluate_query("What employee benefits does BrightLeaf offer?", "Good")
-evaluate_query("Does BrightLeaf have dogs working in any positions?", "Poor")
+evaluate_query("Does BrightLeaf have dogs working in any positions?", "Low Quality")
 
 # Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context, while score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
