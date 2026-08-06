@@ -34,23 +34,13 @@ else:
 
 # Concepts Question 3
 
-steps = [
-    "Receive the user's query",
-    "Embed the user's query",
-    "Extract text from source documents",
-    "Split text into chunks",
-    "Convert text chunks into embeddings",
-    "Retrieve the most relevant chunks",
-    "Inject retrieved chunks into the prompt",
-    "Generate a response from the LLM",
-]
+# Correct sequence with description:
 
-# Correct order and description:
-# 1. Receive the user's query: the process starts with getting the input question or request.
-# 2. Embed the user's query: the query is converted into an embedding to find similar text in documents.
-# 3. Extract text from source documents: text is pulled from relevant sources (e.g., PDFs, web pages).
-# 4. Split text into chunks: large texts are divided into smaller segments for efficient processing.
-# 5. Convert text chunks into embeddings: each chunk is turned into an embedding vector.
+# 1. Extract text from source documents: text is pulled from relevant sources (e.g., PDFs, web pages).
+# 2. Split text into chunks: large texts are divided into smaller segments for efficient processing.
+# 3. Convert text chunks into embeddings: each chunk is turned into an embedding vector.
+# 4. Receive the user's query: process gets the input question or request.
+# 5. Embed the user's query: the query is converted into an embedding to find similar text in documents.
 # 6. Retrieve the most relevant chunks: the system finds and selects the best-matching text based on similarity to the query embedding.
 # 7. Inject retrieved chunks into the prompt: the selected information is added to the input for the LLM.
 # 8. Generate a response from the LLM: the final answer is produced, incorporating the retrieved context.
@@ -144,7 +134,7 @@ documents = {
 # # Keyword Question 1
 query = "What are your hours on weekends?"
 rag_answer(query, documents)
-# Several documents tie with the same overlap score of 1. After sorting, Python breaks the tie using the document name, so the first tied document after sorting is selected. The function simply returns the first highest-scoring match, making tie behavior depend on the ordering produced by the sort (the selected document becoming loyalty.txt).
+# Several documents tie with the same overlap score of 1. After sorting, Python breaks the tie using the document name, so the first tied document after sorting is selected. The function simply returns the first highest-scoring match, making tie behavior depend on the ordering produced by the sort (the selected document incorrectly becoming loyalty.txt).
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
@@ -154,7 +144,7 @@ rag_answer(query, documents)
 # Keyword Question 3
 query = "How do I sign up for rewards?"
 rag_answer(query, documents)
-# I predicted that loyalty.txt would be selected, but no documents. This happened because after stopwords were removed, the code was unable to find any overlapping keywords.
+# I predicted that loyalty.txt would be selected. The actual result found no documents;this happened because after stopwords were removed, the code was unable to find any overlapping keywords.
 
 # ---------------------------------------------------------------------------- #
 

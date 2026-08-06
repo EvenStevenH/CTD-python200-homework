@@ -44,7 +44,7 @@ for q in questions:
     print(f"Similarity Score: {score}")
     print(f"Preview: {top_node.node.text[:200]}")
 
-# For all five responses, the assistant sounded confident, was accurate to the source material, and had high similarity scores (in the 0.76–0.90 range). There was also consistency between questions, retrieved context, and final answers. There was surprisingly little to no signs of hallucinations, meaning the model performed very well.
+# The model performed very well. For all five responses, the assistant sounded confident and accurate to the source material, each with high similarity scores (in the 0.76–0.90 range). That is, there was strong consistency between questions, retrieved context, and final answers.
 
 # ---------------------------------------------------------------------------- #
 # Step 5: Find a Failure
@@ -62,7 +62,9 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview: {node.node.text[:200]}")
 
-# I wanted to ask about the bathroom policy, expecting it to be hard because it is a relatively valid question, but the answer is simply not in the documents. When the retrieval failed, the model became less certain (with similarity scores of 0.70–0.75) and mentioned that it could not find the answer. This response is fairly acceptable for this specific question by acknowledging the failure without jumping to hallucinating, but I cannot say the same about trusting other AI-generated responses on more specific questions that nuanced, highly accurate details. To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
+# I wanted to ask about the bathroom policy, expecting it to be hard because it is a relatively valid question, but the answer is simply not in the documents. 
+
+# The retrieval failed, and the model states that the documents do not mention a bathroom policy. The model had became less certain (with similarity scores of 0.70–0.75), but this response is fairly acceptable for this specific question. It acknowledges the failure over hallucinating, but I cannot say the same about trusting other AI-generated responses on more specific questions that nuanced, highly accurate details. To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
