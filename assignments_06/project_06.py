@@ -9,8 +9,8 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-# docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
-docs_dir = Path("./groundwork_docs")
+docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
+# docs_dir = Path("./groundwork_docs")
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 print(f"Document directory found!\n")
 
@@ -23,7 +23,7 @@ for doc in docs:
 # Step 3: Build the Index and Query Engine
 index = VectorStoreIndex.from_documents(docs)  # in-memory pipeline using docs
 engine = index.as_query_engine(similarity_top_k=3)  # query engine with setting
-print("Index built successfully. Ready to answer questions.\n")
+print("\nIndex built successfully. Ready to answer questions.\n")
 
 # ---------------------------------------------------------------------------- #
 # Step 4: Query the Assistant
@@ -39,7 +39,7 @@ for i, q in enumerate(questions, start=1):
     top_node = response.source_nodes[0]
     doc_name = top_node.node.metadata.get("file_name", "unknown")
     score = round(top_node.score, 4) if top_node.score else "N/A"
-    print(f"--- Question {i} of {len(questions)}")
+    print(f"====== Question {i} of {len(questions)}")
     print(f"Question: {q}")
     print(f"Answer: {response}")
     print(f"Top Retrieved Document Name: {doc_name}")
@@ -51,7 +51,8 @@ for i, q in enumerate(questions, start=1):
 # ---------------------------------------------------------------------------- #
 # Step 5: Find a Failure
 
-query = "What is the bathroom policy on a Sunday?"
+print("====== Find a Failure ======\n")
+query = "What is the bathroom policy for paying customers, and can I earn loyalty points if I place a catering order?"
 response = engine.query(query)
 print(f"Query: {query}")
 print(f"Answer: {response}")
@@ -64,9 +65,11 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview (first 200 chars): {node.node.text[:200]}\n")
 
-# What I asked and why I expected it to be hard: I asked about the bathroom policy, expecting it to be hard because it is a relatively valid question that may require combining information from multiple  documents.
+# I asked a multi-part question, expecting it to be hard because it is a relatively valid question that may require combining information from multiple documents related to policies and catering details. I expect that this may also cause the model to fabricate an answer.
 
-# What happened: The model confidently stated "Dogs are not permitted inside" in response to a question about bathroom policy, despite similarity scores of 0.70–0.75 that should indicate uncertainty. The model's tone also sounded just as confident and definitive as it did on the five easier questions from Step 4. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries, and that AI-generated responses should not always be trusted as is (especially for nuanced, complex questions requiring high accuracy).
+# What happened: the model inferred that catering orders are not eligible for loyalty points, even though the documents do not directly state this. The model also guessed that customers must be paying to use the bathroom at the coffee shop, even though the documents do not explicitly state any sort of bathroom policy.
+
+# The model's tone and wording sounded confident and definitive, even though its responses were not fully grounded in the documents. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries by filling in the gaps, additionally serving as a reminder that AI-generated responses should not always be accepted at face value. 
 
 # To improve the system, I might increase similarity_top_k for compound questions, request more documents from stakeholders to provide more context to improve accuracy, or implement fallbacks (for, say, a message if similarity scores fall below a threshold) to avoid hallucinations.
 

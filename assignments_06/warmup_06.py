@@ -140,14 +140,14 @@ rag_answer(query, documents)
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 rag_answer(query, documents)
-# The model states "None found" when it tries to select a document. Keyword RAG got this wrong because it found no exact, overlapping keywords with query words like "caffeine".
+# The model returns "No overlapping keywords found", and thus no documents were selected. I think keyword RAG got this technically right because it couldn't find exact matches with any of the query tokens (filtered): ['anything', 'caffeine', 'do', 'have', 'without'].
 # I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match (for instance, inferences through document terms like "espresso" and "lattes").
 
 # Keyword Question 3
 # I predict that loyalty.txt would be selected.
 query = "How do I sign up for rewards?"
 rag_answer(query, documents)
-# After running the code, I found my prediction to be incorrect. The model states "None found" because it found no documents. I believe this result happened because beyond the stopwords, the code was unable to find any overlapping keywords with words like "sign" or "rewards".
+# After running the code, I found my prediction to be incorrect. The model returns "No overlapping keywords found", and thus no documents were selected. I believe this result happened because the model couldn't find exact matches with any of the query tokens (filtered): ['do', 'how', 'i', 'rewards', 'sign', 'up'].
 
 # ---------------------------------------------------------------------------- #
 
@@ -197,13 +197,11 @@ for q in questions:
     for i, node in enumerate(response.source_nodes, start=1):
         score = round(node.score, 4) if node.score else "N/A"
         print(f"Node {i} | Similarity Score: {score}")
-        print(f"Chunk Preview: {node.text[:150]}\n")
+        print(f"Chunk Preview:\n{node.text[:150]}\n")
 
-# First query: "What employee benefits does BrightLeaf offer?"
-# Mostly irrelevant chunks, such as the third one containing PDF-specific data (like the font used). The similarity scores range form 0.77–0.80. The model's tone is confident and specific, with little to no hedging language. Unexpectedly, the model did not retrieve employee benefits from the provided context and states, "The employee benefits offered by BrightLeaf are not specified in the provided context information."
+# The retrieved chunks for query 1 looked relevant overall. The employee benefits guide was the top source, and the company overview plus remote work policy appeared as weaker supporting context. The model's tone sounded confident and specific because it listed concrete benefits rather than using hedging language.
 
-# Second query: "What are BrightLeaf's security policies?"
-# The third chunk still looks irrelevant, containing PDF-specific data (like the font used). The similarity scores range form 0.79–0.82. The model's tone is confident and specific, with little to no hedging language. The model was able to identify security policies from the provided context. However, it does not go into detail and states, "BrightLeaf's security policies are outlined in the PDF document located at the file path provided."
+# The retrieved chunks for query 2 also looked relevant overall. The dedicated security policy file was the top source, while the company overview and remote work policy showed up as broader supporting material. The model's tone sounded confident and specific because it listed policies rather than using hedging language. Nothing particularly unexpected was retrieved, but it did seem that the high-level company overview appeared in both queries because it shares general company language.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -218,7 +216,7 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
     for i, node in enumerate(response.source_nodes, start=1):
         score = round(node.score, 4) if node.score else "N/A"
         print(f"Node {i} | Similarity Score: {score}")
-        print(f"Chunk Preview: {node.text[:150]}\n")
+        print(f"Chunk Preview:\n{node.text[:150]}\n")
 
 
 # The response changed between both top_k=1 and top_k=5. At top_k=1 (with similarly scores of 0.80) the model will say that employee benefits exist (but won't go into detail), stating, "BrightLeaf offers a variety of employee benefits." At top_k=5 with (similarly scores ranging form 0.77–0.80), the model will say that employee benefits can't be found, stating, "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information."
@@ -228,7 +226,7 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
 print("====== LlamaIndex Q3 ======\n")
-query3 = "What new products or services is BrightLeaf planning to launch next year?"
+query3 = "For remote contractors working overseas, what is BrightLeaf's parental leave policy?"
 response = engine.query(query3)
 print(f"Question: {query3}")
 print(f"Answer: {response}\n")
@@ -238,7 +236,7 @@ for i, node in enumerate(response.source_nodes):
     print(f"Chunk {i} | Similarity Score: {score}")
     print(f"Preview:\n{node.text[:150]}\n")
 
-# I expected the model to be vague or provide a fabricated answer. What actually happened: the model was unable to confidently answer, since since it could not find relevant information for my query. With similarity scores in the 0.74 range (comparatively lower than with good queries), it doesn't go into detail and states that "BrightLeaf is planning to launch new products or services next year." To change the system to handle this kind of query/failure better, I might set up a minimum relevance threshold or use a system prompt to provide a fallback response to minimize the possibility of hallucinations.
+# I expected the model to fabricate an answer. After retrieving context on remote work and benefits, the model states that the documents do not provide a parent leave policy for remote contractors working overseas. This is an acceptable response, as the documents focused on full-time employees and remote workers based in the US. To handle this kind of query better, I might seek additional documents or metadata to provide more context on employees (such as roles, location, and contract status).
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 4
