@@ -36,11 +36,11 @@ else:
 
 # correct sequence with description:
 steps = [
+    "Receive the user's query",  # process gets the input question or request.
+    "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
     "Extract text from source documents",  # text is pulled from relevant sources (e.g., PDFs, web pages).
     "Split text into chunks",  # large texts are divided into smaller segments for efficient processing.
     "Convert text chunks into embeddings",  # each chunk is turned into an embedding vector.
-    "Receive the user's query",  # process gets the input question or request.
-    "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
     "Retrieve the most relevant chunks",  # the system finds and selects the best-matching text based on similarity to the query embedding.
     "Inject retrieved chunks into the prompt",  # the selected information is added to the input for the LLM.
     "Generate a response from the LLM",  # the final answer is produced, incorporating the retrieved context.
@@ -140,13 +140,14 @@ rag_answer(query, documents)
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 rag_answer(query, documents)
-# The model states "None found" when it tries to select a document. Keyword RAG gets this wrong and is unable to make inferences (through document terms like "espresso" and "lattes") because it found no exact, overlapping keywords.
-# I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match from the document.
+# The model states "None found" when it tries to select a document. Keyword RAG got this wrong because it found no exact, overlapping keywords with query words like "caffeine".
+# I think semantic RAG might be more appropriate, as an embedding model can recognize semantic similarities to a word like "caffeine" without needing an exact match (for instance, inferences through document terms like "espresso" and "lattes").
 
 # Keyword Question 3
+# I predict that loyalty.txt would be selected.
 query = "How do I sign up for rewards?"
 rag_answer(query, documents)
-# I predicted that loyalty.txt would be selected. After running the code, the model states "None found" because it found no documents. I believe this result happened because beyond the stopwords, the code was unable to find any overlapping keywords with words like "sign" or "rewards".
+# After running the code, I found my prediction to be incorrect. The model states "None found" because it found no documents. I believe this result happened because beyond the stopwords, the code was unable to find any overlapping keywords with words like "sign" or "rewards".
 
 # ---------------------------------------------------------------------------- #
 
@@ -199,10 +200,10 @@ for q in questions:
         print(f"Chunk Preview: {node.text[:150]}\n")
 
 # First query: "What employee benefits does BrightLeaf offer?"
-# only the third chunk look irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. Unexpectedly, even with high similarly scores (ranging form 0.77–0.80), the model did not retrieve employee benefits from the provided context and states, "The employee benefits offered by BrightLeaf are not specified in the provided context information."
+# Mostly irrelevant chunks, such as the third one containing PDF-specific data (like the font used). The similarity scores range form 0.77–0.80. The model's tone is confident and specific, with little to no hedging language. Unexpectedly, the model did not retrieve employee benefits from the provided context and states, "The employee benefits offered by BrightLeaf are not specified in the provided context information."
 
 # Second query: "What are BrightLeaf's security policies?"
-# The third chunk still looks irrelevant, containing PDF-specific data (like the font used). The model's tone is confident and specific, with little to no hedging language. With high similarly scores (ranging form 0.79–0.82), the model was able to identify security policies from the provided context. However, it does not go into detail and states, "BrightLeaf's security policies are outlined in the PDF document located at the file path provided."
+# The third chunk still looks irrelevant, containing PDF-specific data (like the font used). The similarity scores range form 0.79–0.82. The model's tone is confident and specific, with little to no hedging language. The model was able to identify security policies from the provided context. However, it does not go into detail and states, "BrightLeaf's security policies are outlined in the PDF document located at the file path provided."
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2

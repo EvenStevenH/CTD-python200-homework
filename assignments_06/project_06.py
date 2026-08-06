@@ -9,8 +9,8 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
-# docs_dir = Path("./groundwork_docs")
+# docs_dir = Path("../../06_AI_augmentation/resources/groundwork_docs")
+docs_dir = Path("./groundwork_docs")
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 print(f"Document directory found!\n")
 
@@ -27,31 +27,31 @@ print("Index built successfully. Ready to answer questions.\n")
 
 # ---------------------------------------------------------------------------- #
 # Step 4: Query the Assistant
-questions = [
-    "What are Groundwork's hours on weekends?",
-    "Do you offer any dairy-free milk options?",
-    "How does the loyalty program work?",
-    "How did Groundwork Coffee get started?",
-    "Do you offer catering or wholesale orders?",
-]
-for i, q in enumerate(questions, start=1):
-    response = engine.query(q)
-    top_node = response.source_nodes[0]
-    doc_name = top_node.node.metadata.get("file_name", "unknown")
-    score = round(top_node.score, 4) if top_node.score else "N/A"
-    print(f"--- Question {i} of {len(questions)}")
-    print(f"Question: {q}")
-    print(f"Answer: {response}")
-    print(f"Top Retrieved Document Name: {doc_name}")
-    print(f"Similarity Score: {score}")
-    print(f"Preview (first 200 chars): {top_node.node.text[:200]}\n")
+# questions = [
+#     "What are Groundwork's hours on weekends?",
+#     "Do you offer any dairy-free milk options?",
+#     "How does the loyalty program work?",
+#     "How did Groundwork Coffee get started?",
+#     "Do you offer catering or wholesale orders?",
+# ]
+# for i, q in enumerate(questions, start=1):
+#     response = engine.query(q)
+#     top_node = response.source_nodes[0]
+#     doc_name = top_node.node.metadata.get("file_name", "unknown")
+#     score = round(top_node.score, 4) if top_node.score else "N/A"
+#     print(f"--- Question {i} of {len(questions)}")
+#     print(f"Question: {q}")
+#     print(f"Answer: {response}")
+#     print(f"Top Retrieved Document Name: {doc_name}")
+#     print(f"Similarity Score: {score}")
+#     print(f"Preview (first 200 chars): {top_node.node.text[:200]}\n")
 
 # Reflection on the five queries: The model performed very well. For all five responses, the assistant sounded confident and accurate to the source material, each with high similarity scores (in the 0.76-0.90 range) - strong consistency between questions, retrieved context, and final answers. None of the five answers surprised me; each one matched what I'd expect to find in a coffee shop's hours, menu, loyalty, story, and catering documents, and the retrieved chunks lined up cleanly with the question being asked.
 
 # ---------------------------------------------------------------------------- #
 # Step 5: Find a Failure
 
-query = "If I visit on a Sunday, can I use my loyalty points toward a dairy-free latte?"
+query = "What is the bathroom policy on a Sunday?"
 response = engine.query(query)
 print(f"Query: {query}")
 print(f"Answer: {response}")
@@ -64,11 +64,11 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview (first 200 chars): {node.node.text[:200]}\n")
 
-# I wanted to ask about the bathroom policy, expecting it to be hard because it is a relatively valid question while knowing that the answer is simply not in the documents.
+# What I asked and why I expected it to be hard: I asked about the bathroom policy, expecting it to be hard because it is a relatively valid question that may require combining information from multiple  documents.
 
-# The model confidently stated "Dogs are not permitted inside" in response to a question about bathroom policy, despite similarity scores of 0.70–0.75 that should indicate uncertainty. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries, and that AI-generated responses should not always be trusted as is (especially for nuanced, complex questions requiring high accuracy).
+# the model's tone still sounded just as confident and definitive as it did on the five easier questions. The model confidently stated "Dogs are not permitted inside" in response to a question about bathroom policy, despite similarity scores of 0.70–0.75 that should indicate uncertainty. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries, and that AI-generated responses should not always be trusted as is (especially for nuanced, complex questions requiring high accuracy).
 
-# To improve the system, I might request more documents and implement fallbacks (for, say, a message if similarity scores fall below a threshold) to improve accuracy and avoid hallucinations.
+# To improve the system, I might increase similarity_top_k for compound questions, request more documents from stakeholders to provide more context to improve accuracy, or implement fallbacks (for, say, a message if similarity scores fall below a threshold) to avoid hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection
