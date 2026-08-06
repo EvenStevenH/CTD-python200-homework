@@ -156,7 +156,7 @@ rag_answer(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-brightleaf_dir = Path("../assignments_06/brightleaf_pdfs")  # relative to script
+brightleaf_dir = Path("./brightleaf_pdfs")
 assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
 
 docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
@@ -222,23 +222,24 @@ for i, node in enumerate(response.source_nodes):
 # LlamaIndex Question 4
 print("====== LlamaIndex Q4 ======\n")
 llm = OpenAI(model="gpt-4o-mini", temperature=0.2)
-faithfulness = FaithfulnessEvaluator(llm=llm)
-relevancy = RelevancyEvaluator(llm=llm)
-
-
-def evaluate_query(query):  # print both scores for both queries
-    response = engine.query(query)
-    faith_result = faithfulness.evaluate_response(response=response)
-    rel_result = relevancy.evaluate_response(query=query, response=response)
-    print(f"Faithfulness Evaluation: {str(faith_result.score)}")
-    print(f"Relevancy Result: {str(rel_result.score)}\n")
-
+faithfulness_evaluator = FaithfulnessEvaluator(llm=llm)
+relevancy_evaluator = RelevancyEvaluator(llm=llm)
 
 print("=== Evaluation of target query ===")
-evaluate_query("What employee benefits does BrightLeaf offer?")
+q1 = "What employee benefits does BrightLeaf offer?"
+response1 = engine.query(q1)
+faith_result1 = faithfulness_evaluator.evaluate_response(response=response1)
+rel_result1 = relevancy_evaluator.evaluate_response(query=q1, response=response1)
+print(f"Faithfulness Evaluation: {str(faith_result1.score)}")
+print(f"Relevancy Result: {str(rel_result1.score)}\n")
 
 print("=== Evaluation of low quality query ===")
-evaluate_query("Does BrightLeaf have dogs working in any positions?")
+q2 = "Does BrightLeaf have dogs working in any positions?"
+response2 = engine.query(q2)
+faith_result2 = faithfulness_evaluator.evaluate_response(response=response2)
+rel_result2 = relevancy_evaluator.evaluate_response(query=q2, response=response2)
+print(f"Faithfulness Evaluation: {str(faith_result2.score)}")
+print(f"Relevancy Result: {str(rel_result2.score)}\n")
 
 # Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context, while score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
