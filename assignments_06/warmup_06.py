@@ -156,7 +156,7 @@ rag_answer(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-brightleaf_dir = Path("./brightleaf_pdfs")
+brightleaf_dir = Path("./resources/brightleaf_pdfs") # relative to script
 assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
 
 docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
