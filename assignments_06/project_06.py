@@ -9,9 +9,9 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-docs_dir = Path("./groundwork_docs")
+# docs_dir = Path("./groundwork_docs")
+docs_dir = Path("assignments_06/resources/groundwork_docs")
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
-print(f"Document directory found!\n")
 
 # Step 2: Load the Documents
 docs = SimpleDirectoryReader(docs_dir).load_data()
@@ -66,7 +66,7 @@ for i, node in enumerate(response.source_nodes, start=1):
 
 # I asked a multi-part question, expecting it to be hard because it is a relatively valid question that may require combining information from multiple documents related to policies and catering details. I expect that this may also cause the model to fabricate an answer.
 
-# What happened: the model states that catering orders are not eligible for loyalty points and guessed that customers must be paying to use the bathroom at the coffee shop, even though the documents do not have explicit details of either.
+# What happened: the model states that catering orders are not eligible for loyalty points and guessed that customers must be paying to use the bathroom at the coffee shop, even though those details are not explicitly present in the documents
 
 # The model's tone and wording sounded confident and definitive, even though its responses were not fully grounded in the documents. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries by filling in the gaps, additionally serving as a reminder that AI-generated responses should not always be accepted at face value.
 

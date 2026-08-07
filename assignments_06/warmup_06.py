@@ -6,9 +6,9 @@ from llama_index.llms.openai import OpenAI
 from llama_index.core.evaluation import FaithfulnessEvaluator, RelevancyEvaluator
 
 if load_dotenv():
-    print("API key loaded successfully!\n")
+    print("API key loaded successfully.")
 else:
-    print("Warning: could not load API key. Check your .env file.\n")
+    print("Warning: could not load API key. Check your .env file.")
 
 # ---------------------------------------------------------------------------- #
 # RAG Concepts
@@ -112,20 +112,14 @@ def simple_keyword_retrieval(query, documents, verbose=True):
         return [("None found", "No relevant content.")]
 
 
-def rag_answer(query, documents):
-    result = simple_keyword_retrieval(query, documents)
-    selected_name = result[0][0]
-    print(f"Selected document: {selected_name}\n")
-
-
 # Keyword Question 1
 query = "What are your hours on weekends?"
-rag_answer(query, documents)
+simple_keyword_retrieval(query, documents)
 # "loyalty.txt" was the selected document. This is actually a tie: hours.txt, hiring.txt, and loyalty.txt each overlap with exactly one query token ("weekends" for hours.txt, "your" for the other two; "your" only survives filtering because "you" is a stopword but "your" is not). The tie-break in scores.sort(reverse=True) falls back to sorting by document name, so "loyalty.txt" wins alphabetically even though it isn't the most relevant document for this query. This is a good illustration of a limitation of pure keyword overlap: word-count matching is a weak relevance signal and can be decided by ties that have nothing to do with actual meaning.
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
-rag_answer(query, documents)
+simple_keyword_retrieval(query, documents)
 # This prints "Selected document: None found" because every document has zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'), so simple_keyword_retrieval's fallback ("None found", "No relevant content.") is returned and no real document is selected.
 # Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but it still fails the user: menu.txt is the actually-relevant document (it lists drinks and milk options), but it never mentions the literal word "caffeine" or "without," so exact keyword overlap can't find it.
 # Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
@@ -133,7 +127,7 @@ rag_answer(query, documents)
 # Keyword Question 3
 # I predict that "loyalty.txt" would be selected.
 query = "How do I sign up for rewards?"
-rag_answer(query, documents)
+simple_keyword_retrieval(query, documents)
 # After running the code, I found my prediction to be incorrect. The model returns "No overlapping keywords found", and thus no documents were selected. I believe this result happened because the model couldn't find exact matches with any of the filtered query tokens like 'do', 'how', 'i', 'rewards', 'sign', and 'up'.
 
 # ---------------------------------------------------------------------------- #
@@ -157,10 +151,11 @@ rag_answer(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-brightleaf_dir = Path("./brightleaf_pdfs")
-assert brightleaf_dir.exists(), f"Directory not found: {brightleaf_dir}"
+# docs_dir = Path("./brightleaf_pdfs")
+docs_dir = Path("../../06_AI_augmentation/brightleaf_pdfs")
+assert docs_dir.exists(), f"Directory not found: {docs_dir}"
 
-docs = SimpleDirectoryReader(brightleaf_dir).load_data()  # load docs
+docs = SimpleDirectoryReader(docs_dir).load_data()  # load docs
 index = VectorStoreIndex.from_documents(docs)  # in-memory pipeline using docs
 engine = index.as_query_engine(similarity_top_k=3)  # query engine with setting
 
