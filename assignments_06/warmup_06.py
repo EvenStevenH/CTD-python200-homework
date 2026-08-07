@@ -19,7 +19,7 @@ else:
 # For Scenario C, I would use prompt engineering because the analyst only needs answers from a single two-page report, one time. The document is short enough to paste directly into the prompt as context, so there's no need to build a reusable retrieval system (chunking, embedding, indexing) for a document that will only ever be queried once.
 
 # Concepts Question 2
-# A confidently wrong answer can be more harmful than one that says "I am not sure" because it may mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
+# A confidently wrong answer can be more harmful than one that says "I am not sure" because it may create misplaced trust and mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
 
 # Concepts Question 3
 steps = [
@@ -151,7 +151,6 @@ simple_keyword_retrieval(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-# docs_dir = Path("./brightleaf_pdfs")
 docs_dir = Path("../../06_AI_augmentation/brightleaf_pdfs")
 assert docs_dir.exists(), f"Directory not found: {docs_dir}"
 
@@ -217,9 +216,9 @@ for i, node in enumerate(response.source_nodes, start=1):
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 4
 print("====== LlamaIndex Q4 ======\n")
-llm = OpenAI(model="gpt-4o-mini", temperature=0.2)
-faithfulness_evaluator = FaithfulnessEvaluator(llm=llm)
-relevancy_evaluator = RelevancyEvaluator(llm=llm)
+llm_q4 = OpenAI(model="gpt-4o-mini", temperature=0.2)
+faithfulness_evaluator = FaithfulnessEvaluator(llm=llm_q4)
+relevancy_evaluator = RelevancyEvaluator(llm=llm_q4)
 
 print("=== Evaluation of target query ===")
 q1 = "What employee benefits does BrightLeaf offer?"
