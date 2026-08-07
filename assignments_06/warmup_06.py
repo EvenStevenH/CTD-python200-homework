@@ -23,10 +23,10 @@ else:
 
 # Concepts Question 3
 steps = [
+    "Receive the user's query",  # process gets the input question or request.
     "Extract text from source documents",  # text is pulled from relevant sources (e.g., PDFs, web pages).
     "Split text into chunks",  # large texts are divided into smaller segments for efficient processing.
     "Convert text chunks into embeddings",  # each chunk is turned into an embedding vector.
-    "Receive the user's query",  # process gets the input question or request.
     "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
     "Retrieve the most relevant chunks",  # the system finds and selects the best-matching text based on similarity to the query embedding.
     "Inject retrieved chunks into the prompt",  # the selected information is added to the input for the LLM.
@@ -151,7 +151,7 @@ simple_keyword_retrieval(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-docs_dir = Path("../../06_AI_augmentation/brightleaf_pdfs")
+docs_dir = Path("./brightleaf_pdfs")
 assert docs_dir.exists(), f"Directory not found: {docs_dir}"
 
 docs = SimpleDirectoryReader(docs_dir).load_data()  # load docs
