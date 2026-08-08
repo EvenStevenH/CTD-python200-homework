@@ -153,7 +153,7 @@ simple_keyword_retrieval(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-docs_dir = Path("../assignments_06/resources/brightleaf_pdfs")
+docs_dir = Path("./brightleaf_pdfs")
 assert docs_dir.exists(), f"Directory not found: {docs_dir}"
 
 docs = SimpleDirectoryReader(docs_dir).load_data()  # load docs
@@ -224,7 +224,7 @@ relevancy_evaluator = RelevancyEvaluator(llm=llm_q4)
 print("=== Evaluation of target query ===")
 q1 = "What employee benefits does BrightLeaf offer?"
 response1 = engine.query(q1)
-faith_result1 = faithfulness_evaluator.evaluate_response(response=response1)
+faith_result1 = faithfulness_evaluator.evaluate_response(query=q1, response=response1)
 rel_result1 = relevancy_evaluator.evaluate_response(query=q1, response=response1)
 print(f"Faithfulness Evaluation: {str(faith_result1.score)}")
 print(f"Relevancy Result: {str(rel_result1.score)}\n")
@@ -232,7 +232,7 @@ print(f"Relevancy Result: {str(rel_result1.score)}\n")
 print("=== Evaluation of low quality query ===")
 q2 = "Does BrightLeaf have dogs working in any positions?"
 response2 = engine.query(q2)
-faith_result2 = faithfulness_evaluator.evaluate_response(response=response2)
+faith_result2 = faithfulness_evaluator.evaluate_response(query=q2, response=response2)
 rel_result2 = relevancy_evaluator.evaluate_response(query=q2, response=response2)
 print(f"Faithfulness Evaluation: {str(faith_result2.score)}")
 print(f"Relevancy Result: {str(rel_result2.score)}\n")
