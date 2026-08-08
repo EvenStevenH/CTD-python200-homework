@@ -22,16 +22,16 @@ else:
 # A confidently wrong answer can be more harmful than one that says "I am not sure" because it may create misplaced trust and mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
 
 # Concepts Question 3
-steps = [
-    "Extract text from source documents",  # Text is pulled from relevant sources, such as PDF files.
-    "Split text into chunks",  # Large texts are divided into smaller segments for efficient processing.
-    "Convert text chunks into embeddings",  # Each chunk is turned into a vector that represents its meaning.
-    "Receive the user's query",  # The user asks a question.
-    "Embed the user's query",  # The query is converted into an embedding to find similar text in chunks.
-    "Retrieve the most relevant chunks",  # The system finds the best-matching text based on similarity to the query embedding.
-    "Inject retrieved chunks into the prompt",  # The selected information is added to the input for the LLM.
-    "Generate a response from the LLM",  # The final answer is produced using the retrieved context.
-]
+# steps = [
+#     "Extract text from source documents",  # Text is pulled from relevant sources, such as PDF files.
+#     "Split text into chunks",  # Large texts are divided into smaller segments for efficient processing.
+#     "Convert text chunks into embeddings",  # Each chunk is turned into a vector that represents its meaning.
+#     "Receive the user's query",  # The user asks a question.
+#     "Embed the user's query",  # The query is converted into an embedding to find similar text in chunks.
+#     "Retrieve the most relevant chunks",  # The system finds the best-matching text based on similarity to the query embedding.
+#     "Inject retrieved chunks into the prompt",  # The selected information is added to the input for the LLM.
+#     "Generate a response from the LLM",  # The final answer is produced using the retrieved context.
+# ]
 
 # ---------------------------------------------------------------------------- #
 
@@ -115,16 +115,12 @@ def simple_keyword_retrieval(query, documents, verbose=True):
 # Keyword Question 1
 query = "What are your hours on weekends?"
 simple_keyword_retrieval(query, documents)
-# "loyalty.txt" was the selected document. This is actually a tie: hours.txt, hiring.txt, and loyalty.txt each overlap with exactly one query token ("weekends" for hours.txt, "your" for the other two; "your" only survives filtering because "you" is a stopword but "your" is not). The tie-break in scores.sort(reverse=True) falls back to sorting by document name, so "loyalty.txt" wins alphabetically even though it isn't the most relevant document for this query. This is a good illustration of a limitation of pure keyword overlap: word-count matching is a weak relevance signal and can be decided by ties that have nothing to do with actual meaning.
-
 # Keyword retrieval pointed to "loyalty.txt", even though "hours.txt" is the correct answer. This happened because there was an overlap with exactly one token in three documents: "weekends" in "hours.txt", "your" in "hiring.txt", and "your" in "loyalty.txt". The "scores.sort(reverse=True)" in "simple_keyword_retrieval" then puts "loyalty.txt" at the top of these three.
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 simple_keyword_retrieval(query, documents)
-# This prints "No overlapping keywords found." because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but it still fails the user: menu.txt is the relevant document (it lists drinks and milk options), but it never mentions the literal word "caffeine" or "without," so exact keyword overlap can't find it.
-
-# Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
+# This prints "No overlapping keywords found.", meaning no document was selected Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but this is still a failed retrieval because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
 
 # Keyword Question 3
 # I predict that "loyalty.txt" would be selected.
@@ -144,11 +140,11 @@ simple_keyword_retrieval(query, documents)
 # Semantic Question 2
 # | Feature                    | Keyword RAG                       | Semantic RAG |
 # |----------------------------|-----------------------------------|--------------|
-# | What is compared?          | Exact word overlap                | Semantic similarity (cosine distance) |
-# | What is retrieved?         | Full document                     | Relevant segments based on semantic meaning |
-# | Can it handle synonyms?    | No                                | Yes - captures conceptual relationships |
+# | What is compared?          | Exact word overlap                | Semantic similarity |
+# | What is retrieved?         | Full document                     | Relevant segments |
+# | Can it handle synonyms?    | No                                | Yes |
 # | Storage format             | Plain text dictionary             | Numerical vectors in embedding space |
-# | Relevance score            | Number of overlapping keywords    | Semantic alignment score (cosine similarity) |
+# | Relevance score            | Number of overlapping keywords    | Semantic alignment score |
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
@@ -176,7 +172,7 @@ for q in questions:
         print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
         print(f"Chunk Preview: {node.text[:150]}\n")
 
-# The retrieved chunks for query 1 appear relevant, with "security_policy.pdf" as the top source node. The model's tone sounded confident and specific when saying that some benefits include health insurance, vision benefits, wellness programs, and financial security benefits. Nothing unexpected was retrieved.
+# The retrieved chunks for query 1 appear relevant, with "employee_benefits.pdf" as the top source node. The model's tone sounded confident and specific when saying that some benefits include health insurance, vision benefits, wellness programs, and financial security benefits. Nothing unexpected was retrieved.
 
 # The retrieved chunks for query 2 also looked relevant overall, with "security_policy.pdf" as the top source node. The model's tone sounded confident and specific, where it states that some of Brightleaf's security policies include maintaining layered defenses for all networks, requiring multi-factor authentication and VPN with device certificates for access to critical systems, and encrypting customer data in transit and at rest. Nothing unexpected was retrieved.
 
