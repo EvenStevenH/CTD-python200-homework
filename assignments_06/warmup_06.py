@@ -19,19 +19,19 @@ else:
 # For Scenario C, I would use RAG because it allows retrieval of specific, current information from a single two-page report.
 
 # Concepts Question 2
-# A confidently wrong answer can be more harmful than one that says "I am not sure" because it may create misplaced trust and mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
+# A confidently wrong answer can be more harmful than one that says "I am not sure" because it may create misplaced trust and mislead users into accepting false information without questioning it. For example, in a hospital setting, if a chatbot confidently provides incorrect medical advice to a patient or doctor, it may lead to potential physical harm or poor health decisions. A mode's confident tone can also affect trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
 
 # Concepts Question 3
-# steps = [
-#     "Extract text from source documents",  # Text is pulled from relevant sources, such as PDF files.
-#     "Split text into chunks",  # Large texts are divided into smaller segments for efficient processing.
-#     "Convert text chunks into embeddings",  # Each chunk is turned into a vector that represents its meaning.
-#     "Receive the user's query",  # The user asks a question.
-#     "Embed the user's query",  # The query is converted into an embedding to find similar text in chunks.
-#     "Retrieve the most relevant chunks",  # The system finds the best-matching text based on similarity to the query embedding.
-#     "Inject retrieved chunks into the prompt",  # The selected information is added to the input for the LLM.
-#     "Generate a response from the LLM",  # The final answer is produced using the retrieved context.
-# ]
+steps = [
+    "Extract text from source documents",  # Text is pulled from relevant sources, such as PDF files.
+    "Split text into chunks",  # Large texts are divided into smaller segments for efficient processing.
+    "Convert text chunks into embeddings",  # Each chunk is turned into a vector that represents its meaning.
+    "Receive the user's query",  # The user asks a question.
+    "Embed the user's query",  # The query is converted into an embedding to find similar text in chunks.
+    "Retrieve the most relevant chunks",  # The system finds the best-matching text based on similarity to the query embedding.
+    "Inject retrieved chunks into the prompt",  # The selected information is added to the input for the LLM.
+    "Generate a response from the LLM",  # The final answer is produced using the retrieved context.
+]
 
 # ---------------------------------------------------------------------------- #
 
@@ -233,7 +233,9 @@ rel_result2 = relevancy.evaluate_response(query=q2, response=response2)
 print(f"Faithfulness Evaluation: {faith_result2.score}")
 print(f"Relevancy Result: {rel_result2.score}\n")
 
-# Faithfulness score of 1 means the answer is accurately supported by the retrieved context, while score of 0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. A relevancy score checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
+# Faithfulness score of 1 means the answer is accurately supported by the retrieved context, while score of 0 indicates the answer may include inaccuracies or hallucinated details not present in the original context.
+
+# A relevancy score checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
 # For my evaluations, only the faithfulness scores changed; both the target query and the low quality query received 1 for relevancy. However, the target query received 1 for faithfulness while the low quality query received 0 for faithfulness. I think this happened because the response for the second query was not faithful to the retrieved contexts and may contain hallucinations or inaccuracies.
 
