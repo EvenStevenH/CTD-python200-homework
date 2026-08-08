@@ -15,22 +15,22 @@ else:
 
 # Concepts Question 1
 # For Scenario A, I would use RAG because the legal team needs to provide up-to-date answers from a large internal policy library. RAG allows retrieval of specific, current information from the PDFs without needing to fine-tune on them.
-# For Scenario B, I would use fine-tuning because the startup wants their model to write in a very specific, possibly uncommon brand voice. Fine-tuning will help the model learn and replicate this unique style effectively using their vast library of examples.
-# For Scenario C, I would use prompt engineering because the analyst only needs answers from a single two-page report, one time. The document is short enough to paste directly into the prompt as context that will only ever be queried once.
+# For Scenario B, I would use fine-tuning because the startup has 3,000 examples of the exact brand voice, so the model can learn and replicate that style from examples rather than relying on a generic prompt.
+# For Scenario C, I would use prompt engineering because the analyst only needs answers from a single two-page report, which is short enough to use directly into the prompt as context that will only ever be queried once.
 
 # Concepts Question 2
 # A confidently wrong answer can be more harmful than one that says "I am not sure" because it may create misplaced trust and mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
 
 # Concepts Question 3
 steps = [
-    "Receive the user's query",  # process gets the input question or request.
-    "Extract text from source documents",  # text is pulled from relevant sources (e.g., PDFs, web pages).
-    "Split text into chunks",  # large texts are divided into smaller segments for efficient processing.
-    "Convert text chunks into embeddings",  # each chunk is turned into an embedding vector.
-    "Embed the user's query",  # the query is converted into an embedding to find similar text in documents.
-    "Retrieve the most relevant chunks",  # the system finds and selects the best-matching text based on similarity to the query embedding.
-    "Inject retrieved chunks into the prompt",  # the selected information is added to the input for the LLM.
-    "Generate a response from the LLM",  # the final answer is produced, incorporating the retrieved context.
+    "Extract text from source documents",  # Text is pulled from relevant sources, such as PDF files.
+    "Split text into chunks",  # Large texts are divided into smaller segments for efficient processing.
+    "Convert text chunks into embeddings",  # Each chunk is turned into a vector that represents its meaning.
+    "Receive the user's query",  # The user asks a question.
+    "Embed the user's query",  # The query is converted into an embedding to find similar text in chunks.
+    "Retrieve the most relevant chunks",  # The system finds the best-matching text based on similarity to the query embedding.
+    "Inject retrieved chunks into the prompt",  # The selected information is added to the input for the LLM.
+    "Generate a response from the LLM",  # The final answer is produced using the retrieved context.
 ]
 
 # ---------------------------------------------------------------------------- #
@@ -100,7 +100,7 @@ def simple_keyword_retrieval(query, documents, verbose=True):
         if verbose:
             print(f"[{name}] overlap={score} -> {sorted(overlap)}")
 
-    scores.sort(reverse=True)
+    # scores.sort(reverse=True)
     best = next(((name, content) for score, name, content in scores if score > 0), None)
     if best:
         if verbose:
@@ -116,6 +116,8 @@ def simple_keyword_retrieval(query, documents, verbose=True):
 query = "What are your hours on weekends?"
 simple_keyword_retrieval(query, documents)
 # "loyalty.txt" was the selected document. This is actually a tie: hours.txt, hiring.txt, and loyalty.txt each overlap with exactly one query token ("weekends" for hours.txt, "your" for the other two; "your" only survives filtering because "you" is a stopword but "your" is not). The tie-break in scores.sort(reverse=True) falls back to sorting by document name, so "loyalty.txt" wins alphabetically even though it isn't the most relevant document for this query. This is a good illustration of a limitation of pure keyword overlap: word-count matching is a weak relevance signal and can be decided by ties that have nothing to do with actual meaning.
+
+# Keyword retrieval pointed to "loyalty.txt", even though "hours.txt" is the correct answer. This happened because there was an overlap with exactly one token in three documents: "weekends" in "hours.txt", "your" in "hiring.txt", and "your" in "loyalty.txt". The "scores.sort(reverse=True)" in "simple_keyword_retrieval" then puts "loyalty.txt" at the top of these three.
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
@@ -151,7 +153,7 @@ simple_keyword_retrieval(query, documents)
 # ---------------------------------------------------------------------------- #
 # LlamaIndex
 
-docs_dir = Path("./brightleaf_pdfs")
+docs_dir = Path("../assignments_06/resources/brightleaf_pdfs")
 assert docs_dir.exists(), f"Directory not found: {docs_dir}"
 
 docs = SimpleDirectoryReader(docs_dir).load_data()  # load docs
@@ -194,8 +196,8 @@ for k in [1, 5]:  # rerun query twice; top_k=1 and top_k=5
         print(f"Chunk Preview: {node.text[:150]}\n")
 
 
-# The response did not change between top_k=1 and top_k=5 on the same query. At top_k=1, the top source was "employee_benefits.txt" (with similarly score of 0.8893), and the model states that employee benefits include health, vision, wellness benefits, financial security, and retirement benefits. At top_k=5, the top source was also "employee_benefits.txt" (with the same similarly score of 0.8893), and the model states near-similar benefits.
-# Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer.Additional chunks (like chunks from "earnings_report.txt" and "partnerships.txt") can be redundant or irrelevant.
+# The response did not change between top_k=1 and top_k=5 on the same query. At top_k=1, the top source was "employee_benefits.pdf" (with similarly score of 0.8893), and the model states that employee benefits include health, vision, wellness benefits, financial security, and retirement benefits. At top_k=5, the top source was also "employee_benefits.pdf" (with the same similarly score of 0.8893), and the model states near-similar benefits.
+# Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer.Additional chunks (like chunks from "earnings_report.pdf" and "partnerships.pdf") can be redundant or irrelevant.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
@@ -210,7 +212,7 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"  Chunk {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
     print(f"  Preview: {node.text[:150]}\n")
 
-# I expected the model to fabricate or hallucinate an answer. After retrieving context on remote work and benefits, the top source was "employee_benefits.txt" (with a similarity score of 0.8243). The model describes the parental leave policy (twelve weeks of paid parental leave to all new parents) and says that unpaid leave can be arranged as needed. While this a fairly acceptable response (it doesn't explicitly address the overseas part of the query), I would improve handling of this kind of query better by seeking additional company documents to help provide more context on different types of employees (such as roles, location, and contract status).
+# I expected the model to fabricate or hallucinate an answer. After retrieving context on remote work and benefits, the top source was "employee_benefits.pdf" (with a similarity score of 0.8243). The model describes the parental leave policy (twelve weeks of paid parental leave to all new parents) and says that unpaid leave can be arranged as needed. While this a fairly acceptable response (it doesn't explicitly address the overseas part of the query), I would improve handling of this kind of query better by seeking additional company documents to help provide more context on different types of employees (such as roles, location, and contract status).
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 4

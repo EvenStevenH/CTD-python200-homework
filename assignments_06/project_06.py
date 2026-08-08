@@ -9,7 +9,7 @@ if load_dotenv():
 else:
     print("Warning: could not load API key. Check your .env file.")
 
-docs_dir = Path("./groundwork_docs")
+docs_dir = Path("../assignments_06/resources/groundwork_docs")
 assert docs_dir.exists(), f"Document directory not found: {docs_dir}"
 
 # Step 2: Load the Documents
