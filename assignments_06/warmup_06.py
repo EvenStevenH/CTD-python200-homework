@@ -115,12 +115,12 @@ def simple_keyword_retrieval(query, documents, verbose=True):
 # Keyword Question 1
 query = "What are your hours on weekends?"
 simple_keyword_retrieval(query, documents)
-# Keyword retrieval pointed to "loyalty.txt", even though "hours.txt" is the correct answer. This happened because there was an overlap with exactly one token in three documents: "weekends" in "hours.txt", "your" in "hiring.txt", and "your" in "loyalty.txt". The "scores.sort(reverse=True)" in "simple_keyword_retrieval" then puts "loyalty.txt" at the top of these three.
+# The function returns "Selected best match: loyalty.txt". This happened because there was an overlap with exactly one token in three documents: "weekends" in "hours.txt", "your" in "hiring.txt", and "your" in "loyalty.txt". The "scores.sort(reverse=True)" in "simple_keyword_retrieval" then puts "loyalty.txt" at the top of these three.
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 simple_keyword_retrieval(query, documents)
-# This prints "No overlapping keywords found.", meaning no document was selected Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but this is still a failed retrieval because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
+# This prints "No overlapping keywords found.", meaning no document was selected. Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but this is still a failed retrieval because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
 
 # Keyword Question 3
 # I predict that "loyalty.txt" would be selected.

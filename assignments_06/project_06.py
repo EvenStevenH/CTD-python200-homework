@@ -63,9 +63,9 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview (first 200 chars): {node.node.text[:200]}\n")
 
-# I asked a multi-part question, expecting it to be hard because it requires combining information from multiple documents related to policies, the loyalty program, and catering details.
+# I asked "What is the bathroom policy for paying customers, and can I earn loyalty points if I place a catering order?", expecting it to be hard because it requires combining information from multiple documents related to policies, the loyalty program, and catering details.
 
-# The model guessed parts of its answer: the model states that catering orders are ineligible for loyalty points, and that customers must be paying to use the bathroom at the coffee shop.
+# What went wrong: the model guessed parts of its answer, stating that catering orders are ineligible for loyalty points and that customers must be paying to use the bathroom at the coffee shop. 
 
 # When the retrieval failed, the model's tone did not change; it remained confident and definitive, even though its responses were not fully grounded in the documents. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries by filling in the gaps. This additionally serves as a reminder that AI-generated responses should not always be accepted at face value.
 
