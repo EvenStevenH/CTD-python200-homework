@@ -122,15 +122,15 @@ simple_keyword_retrieval(query, documents)
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 simple_keyword_retrieval(query, documents)
-# This prints "Selected document: None found" because every document has zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'), so simple_keyword_retrieval's fallback ("None found", "No relevant content.") is returned and no real document is selected.
-# Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but it still fails the user: menu.txt is the actually-relevant document (it lists drinks and milk options), but it never mentions the literal word "caffeine" or "without," so exact keyword overlap can't find it.
+# This prints "No overlapping keywords found." because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but it still fails the user: menu.txt is the relevant document (it lists drinks and milk options), but it never mentions the literal word "caffeine" or "without," so exact keyword overlap can't find it.
+
 # Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
 
 # Keyword Question 3
 # I predict that "loyalty.txt" would be selected.
 query = "How do I sign up for rewards?"
 simple_keyword_retrieval(query, documents)
-# After running the code, I found my prediction to be incorrect. The model returns "No overlapping keywords found", and thus no documents were selected. I believe this result happened because the model couldn't find exact matches with any of the filtered query tokens like 'do', 'how', 'i', 'rewards', 'sign', and 'up'.
+# After running the code, I found my prediction to be incorrect; the model returns "No overlapping keywords found". I believe this result happened because the model couldn't find exact matches with any of the filtered query tokens like 'do', 'how', 'i', 'rewards', 'sign', and 'up'.
 
 # ---------------------------------------------------------------------------- #
 
