@@ -63,13 +63,13 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"Similarity Score: {score}")
     print(f"Preview (first 200 chars): {node.node.text[:200]}\n")
 
-# I asked a multi-part question, expecting it to be hard because it is a relatively valid question that may require combining information from multiple documents related to policies and catering details. I expect that this may also cause the model to fabricate an answer.
+# I asked a multi-part question, expecting it to be hard because it requires combining information from multiple documents related to policies, the loyalty program, and catering details.
 
-# What happened: the model states that catering orders are not eligible for loyalty points and guessed that customers must be paying to use the bathroom at the coffee shop, even though those details are not explicitly present in the documents
+# The model guessed parts of its answer: the model states that catering orders are ineligible for loyalty points, and that customers must be paying to use the bathroom at the coffee shop.
 
-# The model's tone and wording sounded confident and definitive, even though its responses were not fully grounded in the documents. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries by filling in the gaps, additionally serving as a reminder that AI-generated responses should not always be accepted at face value.
+# When the retrieval failed, the model's tone did not change; it remained confident and definitive, even though its responses were not fully grounded in the documents. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries by filling in the gaps. This additionally serves as a reminder that AI-generated responses should not always be accepted at face value.
 
-# To improve the system, I might increase similarity_top_k for compound questions, request more documents from stakeholders to provide more context to improve accuracy, or implement fallbacks (for, say, a message if similarity scores fall below a threshold) to avoid hallucinations.
+# To improve the system, I might increase similarity_top_k for compound questions, request more company documents to help provide more context (and improve accuracy), or implement fallbacks (for similarity scores that fall below a threshold, for example) to avoid hallucinations.
 
 # ---------------------------------------------------------------------------- #
 # Step 6: Reflection

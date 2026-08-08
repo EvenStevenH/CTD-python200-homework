@@ -16,7 +16,7 @@ else:
 # Concepts Question 1
 # For Scenario A, I would use RAG because the legal team needs to provide up-to-date answers from a large internal policy library. RAG allows retrieval of specific, current information from the PDFs without needing to fine-tune on them.
 # For Scenario B, I would use fine-tuning because the startup wants their model to write in a very specific, possibly uncommon brand voice. Fine-tuning will help the model learn and replicate this unique style effectively using their vast library of examples.
-# For Scenario C, I would use prompt engineering because the analyst only needs answers from a single two-page report, one time. The document is short enough to paste directly into the prompt as context, so there's no need to build a reusable retrieval system (chunking, embedding, indexing) for a document that will only ever be queried once.
+# For Scenario C, I would use prompt engineering because the analyst only needs answers from a single two-page report, one time. The document is short enough to paste directly into the prompt as context that will only ever be queried once.
 
 # Concepts Question 2
 # A confidently wrong answer can be more harmful than one that says "I am not sure" because it may create misplaced trust and mislead users into accepting false information without questioning it. For example, if a chatbot confidently provides incorrect medical advice to a patient, it may lead to potential physical harm or poor health decisions. The way the model expresses an answer also affects trust because confidence implies a degree of reliability and authority, even when the content may be inaccurate.
@@ -174,16 +174,16 @@ for q in questions:
         print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
         print(f"Chunk Preview: {node.text[:150]}\n")
 
-# The retrieved chunks for query 1 are relevant, with "employee_benefits.pdf" used across all three chunks. However, the model's tone sounded confident and specific in saying that, "The employee benefits that BrightLeaf offers are not specified in the provided context information."
+# The retrieved chunks for query 1 appear relevant, with "security_policy.pdf" as the top source node. The model's tone sounded confident and specific when saying that some benefits include health insurance, vision benefits, wellness programs, and financial security benefits. Nothing unexpected was retrieved.
 
-# The retrieved chunks for query 2 also looked relevant overall, with "security_policy.pdf" used across all three chunks. The model's tone sounded confident and specific, where it states that "BrightLeaf's security policies are outlined in the PDF document located at the file path provided." Not wrong, but not entirely helpful; nothing particularly unexpected was retrieved.
+# The retrieved chunks for query 2 also looked relevant overall, with "security_policy.pdf" as the top source node. The model's tone sounded confident and specific, where it states that some of Brightleaf's security policies include maintaining layered defenses for all networks, requiring multi-factor authentication and VPN with device certificates for access to critical systems, and encrypting customer data in transit and at rest. Nothing unexpected was retrieved.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
 print("====== LlamaIndex Q2 ======\n")
 query2 = "What employee benefits does BrightLeaf offer?"
 print(f"Question: {query2}")
-for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
+for k in [1, 5]:  # rerun query twice; top_k=1 and top_k=5
     engine_k = index.as_query_engine(similarity_top_k=k)
     response = engine_k.query(query2)
     print(f"Answer (top_k={k}): {response}")
@@ -194,9 +194,8 @@ for k in [1, 5]:  # reruns query twice with top_k=1 and top_k=5
         print(f"Chunk Preview: {node.text[:150]}\n")
 
 
-# The response changed between both top_k=1 and top_k=5. At top_k=1 (with similarly scores of 0.80) the model will say that employee benefits exist (but won't go into detail), stating, "BrightLeaf offers a variety of employee benefits." At top_k=5 with (similarly scores ranging form 0.77–0.80), the model will say that employee benefits can't be found, stating, "The employee benefits offered by BrightLeaf are not explicitly mentioned in the provided context information."
-
-# Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer;more retrieved context is not always better because additional chunks can be redundant or less relevant.
+# The response did not change between top_k=1 and top_k=5 on the same query. At top_k=1, the top source was "employee_benefits.txt" (with similarly score of 0.8893), and the model states that employee benefits include health, vision, wellness benefits, financial security, and retirement benefits. At top_k=5, the top source was also "employee_benefits.txt" (with the same similarly score of 0.8893), and the model states near-similar benefits.
+# Using five chunks provided more supporting context (as shown through top_k=5), but it did not substantially improve the final answer.Additional chunks (like chunks from "earnings_report.txt" and "partnerships.txt") can be redundant or irrelevant.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 3
@@ -211,7 +210,7 @@ for i, node in enumerate(response.source_nodes, start=1):
     print(f"  Chunk {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
     print(f"  Preview: {node.text[:150]}\n")
 
-# I expected the model to fabricate an answer. After retrieving context on remote work and benefits, the model states that the documents do not provide a parent leave policy for remote contractors working overseas. This is an acceptable response, as the documents focused on full-time employees and remote workers based in the US. To handle this kind of query better, I might seek additional documents or metadata to provide more context on employees (such as roles, location, and contract status).
+# I expected the model to fabricate or hallucinate an answer. After retrieving context on remote work and benefits, the top source was "employee_benefits.txt" (with a similarity score of 0.8243). The model describes the parental leave policy (twelve weeks of paid parental leave to all new parents) and says that unpaid leave can be arranged as needed. While this a fairly acceptable response (it doesn't explicitly address the overseas part of the query), I would improve handling of this kind of query better by seeking additional company documents to help provide more context on different types of employees (such as roles, location, and contract status).
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 4
@@ -236,8 +235,8 @@ rel_result2 = relevancy_evaluator.evaluate_response(query=q2, response=response2
 print(f"Faithfulness Evaluation: {str(faith_result2.score)}")
 print(f"Relevancy Result: {str(rel_result2.score)}\n")
 
-# Faithfulness score of 1.0 means the answer is accurately supported by the retrieved context, while score of 0.0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. Relevancy checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
+# Faithfulness score of 1 means the answer is accurately supported by the retrieved context, while score of 0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. A relevancy score checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
 
-# Only the faithfulness scores changed. Both the target query and the low quality query received 1.0 for relevancy. However, the target query received 1.0 for faithfulness while the low quality query received 0.0 for faithfulness. I think this happened because the response for the second query was not faithful to the retrieved contexts and may contain hallucinations or inaccuracies.
+# Only the faithfulness scores changed; both the target query and the low quality query received 1 for relevancy. However, the target query received 1 for faithfulness while the low quality query received 0 for faithfulness. I think this happened because the response for the second query was not faithful to the retrieved contexts and may contain hallucinations or inaccuracies.
 
 # The "LLM-as-a-judge" approach is an evaluation method where a large language model (LLM) itself is used to assess the quality of responses generated by another system. This approach is particularly useful in evaluating Retrieval-Augmented Generation (RAG) systems because it provides more nuanced and context-aware evaluations compared to simple accuracy metrics.
