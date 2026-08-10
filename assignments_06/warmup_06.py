@@ -115,18 +115,18 @@ def simple_keyword_retrieval(query, documents, verbose=True):
 # Keyword Question 1
 query = "What are your hours on weekends?"
 simple_keyword_retrieval(query, documents)
-# The function returns "Selected best match: loyalty.txt". This happened because there was an overlap with exactly one token in three documents: "weekends" in "hours.txt", "your" in "hiring.txt", and "your" in "loyalty.txt". The "scores.sort(reverse=True)" in "simple_keyword_retrieval" then puts "loyalty.txt" at the top of these three.
+# The function returns "Selected best match: hours.txt". This happened because there was a strong overlap with tokens (such as "weekends") found in "hours.txt".
 
 # Keyword Question 2
 query = "Do you have anything without caffeine?"
 simple_keyword_retrieval(query, documents)
-# This prints "No overlapping keywords found.", meaning no document was selected. Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but this is still a failed retrieval because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
+# This prints "No overlapping keywords found", meaning the model selected no documents. Keyword RAG technically doesn't produce a wrong answer here (it doesn't hallucinate a document), but this is still a failed retrieval because all documents have zero token overlap with the filtered query tokens ('anything', 'caffeine', 'do', 'have', 'without'). Semantic RAG would do better here because an embedding model can recognize that "anything without caffeine" is conceptually related to menu items like "decaf," "herbal tea," or milk options, even without any exact word match.
 
 # Keyword Question 3
 # I predict that "loyalty.txt" would be selected.
 query = "How do I sign up for rewards?"
 simple_keyword_retrieval(query, documents)
-# After running the code, I found my prediction to be incorrect; the model returns "No overlapping keywords found". I believe this result happened because the model couldn't find exact matches with any of the filtered query tokens like 'do', 'how', 'i', 'rewards', 'sign', and 'up'.
+# After running the code, I found my prediction to be incorrect. The actual output returns "No overlapping keywords found", meaning the model selected no documents. I believe this result happened because the model couldn't find exact matches with any of the filtered query tokens like 'do', 'how', 'i', 'rewards', 'sign', and 'up'.
 
 # ---------------------------------------------------------------------------- #
 
@@ -164,17 +164,17 @@ questions = [
 ]
 for q in questions:
     response = engine.query(q)
-    print(f"Q: {q}")
-    print(f"A: {response}\n")
+    print(f"Question: {q}")
+    print(f"Answer: {response}\n")
     print(f"Retrieved {len(response.source_nodes)} source nodes:")
     for i, node in enumerate(response.source_nodes, start=1):
         doc_name = node.metadata.get("file_name", "unknown")
         print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
         print(f"Chunk Preview: {node.text[:150]}\n")
 
-# The retrieved chunks for query 1 appear relevant, with "employee_benefits.pdf" as the top source node. The model's tone sounded confident and specific when saying that some benefits include health insurance, vision benefits, wellness programs, and financial security benefits. Nothing unexpected was retrieved.
+# For query one, a relevant chunk from the employee benefits document was retrieved as the top source node. The model's tone sounded confident and specific when saying that some benefits include health insurance, vision benefits, wellness programs, and financial security benefits. Nothing unexpected was retrieved.
 
-# The retrieved chunks for query 2 also looked relevant overall, with "security_policy.pdf" as the top source node. The model's tone sounded confident and specific, where it states that some of Brightleaf's security policies include maintaining layered defenses for all networks, requiring multi-factor authentication and VPN with device certificates for access to critical systems, and encrypting customer data in transit and at rest. Nothing unexpected was retrieved.
+# For query one, a relevant chunk from the security policy document was retrieved as the top source node. The model's tone sounded confident and specific, where it states that some of Brightleaf's security policies include maintaining layered defenses for all networks, requiring multi-factor authentication and VPN with device certificates for access to critical systems, and encrypting customer data in transit and at rest. Nothing unexpected was retrieved.
 
 # ---------------------------------------------------------------------------- #
 # LlamaIndex Question 2
@@ -233,10 +233,4 @@ rel_result2 = relevancy.evaluate_response(query=q2, response=response2)
 print(f"Faithfulness Evaluation: {faith_result2.score}")
 print(f"Relevancy Result: {rel_result2.score}\n")
 
-# Faithfulness score of 1 means the answer is accurately supported by the retrieved context, while score of 0 indicates the answer may include inaccuracies or hallucinated details not present in the original context.
-
-# A relevancy score checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents.
-
-# For my evaluations, only the faithfulness scores changed; both the target query and the low quality query received 1 for relevancy. However, the target query received 1 for faithfulness while the low quality query received 0 for faithfulness. I think this happened because the response for the second query was not faithful to the retrieved contexts and may contain hallucinations or inaccuracies.
-
-# The "LLM-as-a-judge" approach is an evaluation method where a large language model (LLM) itself is used to assess the quality of responses generated by another system. This approach is particularly useful in evaluating Retrieval-Augmented Generation (RAG) systems because it provides more nuanced and context-aware evaluations compared to simple accuracy metrics.
+# Faithfulness score of 1 means the answer is accurately supported by the retrieved context, while score of 0 indicates the answer may include inaccuracies or hallucinated details not present in the original context. A relevancy score checks how closely the produced answer addresses/relates to the question, while faithfulness checks if it is supported by the provided documents. For my evaluations, only the faithfulness scores changed; both the target query and the low quality query received 1 for relevancy. However, the target query received 1 for faithfulness while the low quality query received 0 for faithfulness. I think this happened because the response for the second query was not faithful to the retrieved contexts and may contain hallucinations or inaccuracies. Finally, the "LLM-as-a-judge" approach is an evaluation method where a large language model (LLM) itself is used to assess the quality of responses generated by another system. This approach is particularly useful in evaluating Retrieval-Augmented Generation (RAG) systems because it provides more nuanced and context-aware evaluations compared to simple accuracy metrics.

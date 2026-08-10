@@ -55,7 +55,7 @@ response = engine.query(query)
 print(f"Query: {query}")
 print(f"Answer: {response}")
 print(f"All {len(response.source_nodes)} retrieved source nodes:")
-for i, node in enumerate(response.source_nodes, start=1):
+for i, node in enumerate(response.source_nodes, start=1):  # all three nodes
     name = node.node.metadata.get("file_name", "unknown file")
     score = round(node.score, 4) if node.score else "N/A"
     print(f"Source Node {i} of {len(response.source_nodes)}")
@@ -65,7 +65,7 @@ for i, node in enumerate(response.source_nodes, start=1):
 
 # I asked "What is the bathroom policy for paying customers, and can I earn loyalty points if I place a catering order?", expecting it to be hard because it requires combining information from multiple documents related to policies, the loyalty program, and catering details.
 
-# What went wrong: the model guessed parts of its answer, stating that catering orders are ineligible for loyalty points and that customers must be paying to use the bathroom at the coffee shop. 
+# What went wrong: the model guessed parts of its answer, stating that catering orders are ineligible for loyalty points and that customers must be paying to use the bathroom at the coffee shop.
 
 # When the retrieval failed, the model's tone did not change; it remained confident and definitive, even though its responses were not fully grounded in the documents. This suggests potential issues with how the retrieval system interprets similarity or handles ambiguous queries by filling in the gaps. This additionally serves as a reminder that AI-generated responses should not always be accepted at face value.
 
