@@ -23,14 +23,14 @@ else:
 
 # Concepts Question 3
 # steps = [
-#     "Extract text from source documents" — Text is pulled from relevant sources, such as PDF files.
-#     "Split text into chunks" — Large texts are divided into smaller segments for efficient processing.
-#     "Convert text chunks into embeddings" — Each chunk is turned into a vector that represents its meaning.
-#     "Receive the user's query" — The user asks a question.
-#     "Embed the user's query" — The query is converted into an embedding to find similar text in chunks.
-#     "Retrieve the most relevant chunks" — The system finds the best-matching text based on similarity to the query embedding.
-#     "Inject retrieved chunks into the prompt" — The selected information is added to the input for the LLM.
-#     "Generate a response from the LLM" — The final answer is produced using the retrieved context.
+#     1. "Extract text from source documents" — Text is pulled from relevant sources, such as PDF files.
+#     2. "Split text into chunks" — Large texts are divided into smaller segments for efficient processing.
+#     3. "Convert text chunks into embeddings" — Each chunk is turned into a vector that represents its meaning.
+#     4. "Receive the user's query" — The user asks a question.
+#     5. "Embed the user's query" — The query is converted into an embedding to find similar text in chunks.
+#     6. "Retrieve the most relevant chunks" — The system finds the best-matching text based on similarity to the query embedding.
+#     7. "Inject retrieved chunks into the prompt" — The selected information is added to the input for the LLM.
+#     8. "Generate a response from the LLM" — The final answer is produced using the retrieved context.
 # ]
 
 # ---------------------------------------------------------------------------- #
@@ -168,12 +168,9 @@ for q in questions:
     print(f"Answer: {response}\n")
     print(f"Retrieved {len(response.source_nodes)} source nodes:")
     for i, node in enumerate(response.source_nodes, start=1):
-        # doc_name = node.metadata.get("file_name", "unknown")
-        # print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
-        # print(f"Chunk Preview: {node.text[:150]}\n")
-        print(f"Node ID: {node.node.node_id}")
-        print(f"Node {i} | Similarity Score: {node.score:.4f}")
-        print(f"Chunk Preview: {node.node.get_content()[:150]}\n")
+        doc_name = node.metadata.get("file_name", "unknown")
+        print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
+        print(f"Chunk Preview: {node.text[:150]}\n")
 
 # For query one, a relevant chunk from the employee benefits document was retrieved as the top source node. The model's tone sounded confident and specific when saying that some benefits include health insurance, vision benefits, wellness programs, and financial security benefits. Nothing unexpected was retrieved.
 
@@ -190,9 +187,9 @@ for k in [1, 5]:  # rerun query twice; top_k=1 and top_k=5
     print(f"Answer (top_k={k}): {response}")
     print(f"Retrieved {len(response.source_nodes)} source nodes:")
     for i, node in enumerate(response.source_nodes, start=1):
-        print(f"Node ID: {node.node.node_id}")
-        print(f"Node {i} | Similarity Score: {node.score:.4f}")
-        print(f"Chunk Preview: {node.node.get_content()[:150]}\n")
+        doc_name = node.metadata.get("file_name", "unknown")
+        print(f"Node {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
+        print(f"Chunk Preview: {node.text[:150]}\n")
 
 
 # The response did not change between top_k=1 and top_k=5 on the same query. At top_k=1, the top source was "employee_benefits.pdf" (with similarly score of 0.8893), and the model states that employee benefits include health, vision, wellness benefits, financial security, and retirement benefits. At top_k=5, the top source was also "employee_benefits.pdf" (with the same similarly score of 0.8893), and the model states near-similar benefits.
@@ -207,9 +204,9 @@ print(f"Question: {query3}")
 print(f"Answer: {response}\n")
 print("All retrieved chunks:")
 for i, node in enumerate(response.source_nodes, start=1):
-    print(f"Node ID: {node.node.node_id}")
-    print(f"  Chunk {i} | Similarity Score: {node.score:.4f}")
-    print(f"  Preview: {node.node.get_content()[:150]}\n")
+    doc_name = node.metadata.get("file_name", "unknown")
+    print(f"  Chunk {i} | Document: {doc_name} | Similarity Score: {node.score:.4f}")
+    print(f"  Preview: {node.text[:150]}\n")
 
 # I expected the model to fabricate or hallucinate an answer. After retrieving context on remote work and benefits, the top source was "employee_benefits.pdf" (with a similarity score of 0.8243). The model describes the parental leave policy (twelve weeks of paid parental leave to all new parents) and says that unpaid leave can be arranged as needed. While this a fairly acceptable response (it doesn't explicitly address the overseas part of the query), I would improve handling of this kind of query better by seeking additional company documents to help provide more context on different types of employees (such as roles, location, and contract status).
 
