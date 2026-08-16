@@ -32,37 +32,40 @@ def celsius_to_fahrenheit(celsius: float) -> str:
     return f"{celsius}°C is {fahrenheit}°F"
 
 
-celsius_to_fahrenheit_schema = {
-    "type": "function",
-    "function": {
-        "name": "celsius_to_fahrenheit",
-        "description": "Convert a Celsius temperature to Fahrenheit.",
-        "parameters": {
-            "type": "object",
-            "properties": {"celsius": {"type": "number"}},
-            "required": ["celsius"],
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "celsius_to_fahrenheit",
+            "description": "Convert a Celsius temperature to Fahrenheit.",
+            "parameters": {
+                "type": "object",
+                "properties": {"celsius": {"type": "number"}},
+                "required": ["celsius"],
+            },
         },
-    },
-}
+    }
+]
 for temp in [0, 100, -40]:
     print(celsius_to_fahrenheit(temp))
 
 # ---------------------------------------------------------------------------- #
 print("\n====== Q2")  # Q2
 
-get_current_time_schema = {
-    "type": "function",
-    "function": {
-        "name": "get_current_time",
-        "description": "Returns the current local time as a string.",
-        "parameters": {
-            "type": "object",
-            "properties": {},
-            "required": [],
+tools_q2 = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_time",
+            "description": "Returns the current local time as a string.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
         },
-    },
-}
-tools = [get_current_time_schema]
+    }
+]
 
 
 def get_current_time() -> str:
@@ -72,9 +75,9 @@ def get_current_time() -> str:
 
 def run_agent(user_prompt: str) -> str:
     """Run a minimal ReAct-style agent for a single user prompt."""
-    SYSTEM_PROMPT = """
-    You are a simple assistant that can tell the current time.
-    Use the tool get_current_time whenever a user asks about the time."""
+
+    SYSTEM_PROMPT = """You are a simple assistant that can tell the current time.
+                     Use the tool get_current_time whenever a user asks about the time."""
 
     # Step 1: start the conversation with system and user messages
     messages = [
@@ -86,13 +89,16 @@ def run_agent(user_prompt: str) -> str:
     first_response = client.chat.completions.create(
         model="gpt-4.1-mini",
         messages=messages,
-        tools=tools,
+        tools=tools_q2,
         tool_choice="auto",  # model chooses whether to use a tool
     )
+
     print("First response received from model...")
     print(first_response)
     first_message = first_response.choices[0].message
-    messages.append(  # Record what the model said so far
+
+    # Record what the model said so far
+    messages.append(
         {
             "role": "assistant",
             "content": first_message.content,
@@ -105,15 +111,18 @@ def run_agent(user_prompt: str) -> str:
         print("Agentic mode engaged...")
         for tool_call in first_message.tool_calls:
             function_name = tool_call.function.name
+            # In this example we only have one tool: get_current_time
             if function_name == "get_current_time":
                 tool_result = get_current_time()
             else:
                 tool_result = f"Error: unknown tool {function_name}."
 
+            # Print for debugging so we can see what happened
             print("Tool called:", function_name)
             print("Tool result:", tool_result)
 
-            messages.append(  # append the tool output so the model can see it
+            # Step 3b: append the tool output so the model can see it
+            messages.append(
                 {
                     "role": "tool",
                     "tool_call_id": tool_call.id,
@@ -129,6 +138,7 @@ def run_agent(user_prompt: str) -> str:
         )
         print("Second response received from model...")
         print(second_response)
+
         final_message = second_response.choices[0].message
         return final_message.content or ""
     else:
@@ -150,7 +160,8 @@ print(result)
 print("\n====== Q3")  # Q3
 
 
-def run_agent_q2(user_prompt: str) -> str:
+# extend agent
+def run_agent(user_prompt: str) -> str:
     """
     Same fixed 2-call structure as run_agent from the lesson, but with two tools.
     Dispatches get_current_time and celsius_to_fahrenheit by name.
@@ -209,13 +220,38 @@ def run_agent_q2(user_prompt: str) -> str:
         return first_message.content or ""
 
 
-tools = [get_current_time_schema, celsius_to_fahrenheit_schema]
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "celsius_to_fahrenheit",
+            "description": "Convert a Celsius temperature to Fahrenheit.",
+            "parameters": {
+                "type": "object",
+                "properties": {"celsius": {"type": "number"}},
+                "required": ["celsius"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_time",
+            "description": "Returns the current local time as a string.",
+            "parameters": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+            },
+        },
+    },
+]
 
-response_a = run_agent_q2("What is 37 degrees Celsius in Fahrenheit?")
+response_a = run_agent("What is 37 degrees Celsius in Fahrenheit?")
 print("Response A:", response_a)
 # Yes, a tool was called (celsius_to_fahrenheit) because the prompt asks about a temperature conversion.
 
-response_b = run_agent_q2("What is the boiling point of water in plain English?")
+response_b = run_agent("What is the boiling point of water in plain English?")
 print("\nResponse B:", response_b)
 # No tool was called because the question does not require time or temperature conversion. The model provides the boiling point of water (100C / 212F) directly from its knowledge.
 
@@ -686,15 +722,12 @@ def run_agent_cycle(messages, user_text, max_tool_rounds=5):
 print("\n====== Q5")  # Q5 > Recreate the scenario that hit tool-round limit
 
 messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-try:
-    result = run_agent_cycle(
-        messages,
-        "Load bike_commute.csv and compute the correlation between "
-        "avg_traffic_density and avg_speed_kmh.",
-    )
-    print(result)
-except Exception as e:
-    print(f"Could not run Q5: {e}")
+result = run_agent_cycle(
+    messages,
+    "Load bike_commute.csv and compute the correlation between "
+    "avg_traffic_density and avg_speed_kmh.",
+)
+print(result)
 
 # ---------------------------------------------------------------------------- #
 print("\n====== Q6")  # Q6

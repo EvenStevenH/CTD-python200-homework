@@ -54,11 +54,7 @@ def load_happiness_data() -> dict:
     global df
     if df is not None:
         print("Data already loaded. Returning existing dataframe info.")
-        return {
-            "num_rows": df.shape[0],
-            "num_columns": df.shape[1],
-            "column_names": list(df.columns),
-        }
+        return {"shape": df.shape, "columns": df.columns.tolist()}
 
     if os.path.exists(DATA_PATH):
         print(f"Loading merged file from {DATA_PATH}")
@@ -66,12 +62,7 @@ def load_happiness_data() -> dict:
     else:
         print("Pre-merged file not found. Merging yearly CSVs.")
         df = merge_df()
-
-    return {
-        "num_rows": df.shape[0],
-        "num_columns": df.shape[1],
-        "column_names": list(df.columns),
-    }
+    return {"shape": df.shape, "columns": df.columns.tolist()}
 
 
 @tool  # tool 2
