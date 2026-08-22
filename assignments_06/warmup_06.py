@@ -23,14 +23,14 @@ else:
 
 # Concepts Question 3
 # steps = [
-#     1. "Extract text from source documents" — Text is pulled from relevant sources, such as PDF files.
-#     2. "Split text into chunks" — Large texts are divided into smaller segments for efficient processing.
-#     3. "Convert text chunks into embeddings" — Each chunk is turned into a vector that represents its meaning.
-#     4. "Receive the user's query" — The user asks a question.
-#     5. "Embed the user's query" — The query is converted into an embedding to find similar text in chunks.
-#     6. "Retrieve the most relevant chunks" — The system finds the best-matching text based on similarity to the query embedding.
-#     7. "Inject retrieved chunks into the prompt" — The selected information is added to the input for the LLM.
-#     8. "Generate a response from the LLM" — The final answer is produced using the retrieved context.
+#     "Extract text from source documents",  # Text is pulled from relevant sources, such as PDF files.
+#     "Split text into chunks",  # Large texts are divided into smaller segments for efficient processing.
+#     "Convert text chunks into embeddings",  # Each chunk is turned into a vector that represents its meaning.
+#     "Receive the user's query",  # The user asks a question.
+#     "Embed the user's query",  # The query is converted into an embedding to find similar text in chunks.
+#     "Retrieve the most relevant chunks",  # The system finds the best-matching text based on similarity to the query embedding.
+#     "Inject retrieved chunks into the prompt",  # The selected information is added to the input for the LLM.
+#     "Generate a response from the LLM",  # The final answer is produced using the retrieved context.
 # ]
 
 # ---------------------------------------------------------------------------- #
