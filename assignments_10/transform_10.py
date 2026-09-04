@@ -5,8 +5,12 @@ import joblib
 from dotenv import load_dotenv
 from supabase import create_client
 from openai import OpenAI
+from pathlib import Path
 
 # https://youtu.be/sokVZceUyig
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+MODELS_DIR = SCRIPT_DIR / "models"
 
 load_dotenv()
 supabase = create_client(os.getenv("SUPABASE_URL"), os.getenv("SUPABASE_KEY"))
@@ -14,7 +18,7 @@ openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 # ---------------------------------------------------------------------------- #
 # Step 1: Incremental Read
-with open("./models/weather_classifier_metadata.json") as f:
+with open(MODELS_DIR / "weather_classifier_metadata.json") as f:
     metadata = json.load(f)
 feature_names = metadata.get("feature_names", [])
 
@@ -34,7 +38,7 @@ if not to_classify:
 
 # ---------------------------------------------------------------------------- #
 # Step 2: ML Transform
-clf = joblib.load("./models/weather_classifier.pkl")
+clf = joblib.load(MODELS_DIR / "weather_classifier.pkl")
 df = pd.DataFrame(to_classify)
 X = df[feature_names]
 
