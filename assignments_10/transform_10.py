@@ -14,7 +14,7 @@ openai_client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 
 # ---------------------------------------------------------------------------- #
 # Step 1: Incremental Read
-with open("models/weather_classifier_metadata.json") as f:
+with open("./models/weather_classifier_metadata.json") as f:
     metadata = json.load(f)
 feature_names = metadata.get("feature_names", [])
 
@@ -34,7 +34,7 @@ if not to_classify:
 
 # ---------------------------------------------------------------------------- #
 # Step 2: ML Transform
-clf = joblib.load("models/weather_classifier.pkl")
+clf = joblib.load("./models/weather_classifier.pkl")
 df = pd.DataFrame(to_classify)
 X = df[feature_names]
 

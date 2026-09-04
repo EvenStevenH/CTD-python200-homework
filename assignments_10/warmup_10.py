@@ -13,7 +13,7 @@
 # For summing a column of revenue, I'd use deterministic code because simple arithmetic is best done by straightforward computation, such as via numpy/pandas operations.
 
 # ML/LLM Question 3
-# Incremental processing ensures a pipeline only does new/unprocessed data on each run. It's important because it avoid unnecessary reprocessing of all records, which could be costly and risky (overwriting previous enrichment results). If 365 records were re-processed every time, it could cause confidence scores to change for already-enriched dates, LLM summaries to differ slightly each run, and contain duplicate records from upserting existing rows again.
+# Incremental processing ensures a pipeline only does new/unprocessed data on each run. It's important because it avoid unnecessary reprocessing of all records, which could be costly and risky (overwriting previous enrichment results). If 365 records were re-processed every time, it could cause unnecessary costs, latency, and possible inconsistency in regenerated outputs.
 
 # ---------------------------------------------------------------------------- #
 # Prompt Design
@@ -30,15 +30,19 @@ SYSTEM_PROMPT_2 = (
 
 # Prompt Question 2
 # This call_with_retry function would be used in production pipelines to handle transient/temporary API issues without failing completely and help improve service availability by reattempting operations.
-def call_with_retry(client, messages, max_retries=3):
-    import time
+import time
 
+
+def call_with_retry(client, messages, max_retries=3):
     for attempt in range(max_retries):
         try:
-            return client.chat.completions.create(messages=messages)
+            return client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=messages,
+            )
         except Exception as e:
             if attempt < max_retries - 1:
-                print(f"Retrying... ({attempt+1}/{max_retries})")
+                print(f"Retrying... ({attempt + 1}/{max_retries})")
                 time.sleep(2)
             else:
                 return None
